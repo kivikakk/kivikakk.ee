@@ -1,0 +1,142 @@
+---
+layout: post
+title:  "k6_bytea" #_
+date:   2013-05-13T09:50:00Z
+categories:
+---
+
+I've started a project in Erlang recently, and I needed a big block of mutable
+memory -- a massive byte array, buffer, whatever you want to call it.  Erlang's
+binary strings are immutable and so probably not suitable.
+
+I figured the core distribution must've had something like this ... nope.
+Spending 30 minutes Googling and checking docs twice and thrice over, but
+there's clearly no mutable byte array in Erlang itself.
+
+Is there a hack that approximates to this?  Search ... [this StackOverflow
+almost seems
+hopeful](http://stackoverflow.com/questions/1919594/binary-operations-on-erlang-binaries)
+at the end, referencing `hipe_bifs:bytearray/2` and
+`hipe_bifs:bytearray_update/3`, but alas, they are so-named because they are
+part of the HiPE native compiler, and not Erlang itself.  (I'm not currently
+using HiPE, and it would be nice to not be tied to it.)
+
+Then, I thought, surely someone else has extended Erlang to do this.  There are
+several modes of extending Erlang, but [native implemented functions
+(NIFs)](http://www.erlang.org/doc/man/erl_nif.html) would be the obvious
+candidate for manipulating large chunks of memory.
+
+Googling this yielded complete failure: people just don't seem to be doing
+it.  (If people *are* doing it and you know this, please, [let me know](https://twitter.com/kivikakk).)
+
+So I did it: [k6\_bytea](https://github.com/kivikakk/k6_bytea).
+
+The interface is simple and fairly pleasant:
+
+{% highlight erlang %}
+1> Bytea = k6_bytea:from_binary(<<"Hello, world.">>).
+<<>>
+2> k6_bytea:set(Bytea, 7, <<"Thomas">>).
+ok
+3> k6_bytea:to_binary(Bytea).
+<<"Hello, Thomas">>
+4> Gigabyte = k6_bytea:new(1000000000).
+<<>>
+5> k6_bytea:delete(Gigabyte).
+ok
+6>
+{% endhighlight %}
+
+The gigabyte allocation caused a small notch on my memory performance graph:
+
+<img title="Ahem." src="/img/1gb.png" style="border: 1px solid #000; margin:
+0px auto; display: block;">
+
+### perf
+
+The obvious question remains: how does it perform, vis-à-vis binary strings?
+
+Let's make a contrived benchmark: initialise a large buffer, write all over it
+in a deterministic fashion, and copy data all over it. Let's do it in parallel,
+too.
+
+Here's the benchmarking code for your perusal:
+
+{% highlight erlang %}
+-module(k6_bytea_bench).
+ 
+-export([run/0, binary_strings/1, k6_bytea/1]).
+ 
+-define(COUNT, 1024).   % Parallel operations.
+-define(SIZE, 102400).  % Size of buffer to work on.
+ 
+run() ->
+    measure(<<"Binary strings">>, ?MODULE, binary_strings),
+    measure(<<"k6_bytea">>, ?MODULE, k6_bytea).
+ 
+measure(Name, M, F) ->
+    {SM, SS, SI} = erlang:now(),
+    spawn_many(?COUNT, M, F, [self()]),
+    receive_many(?COUNT, done),
+    {EM, ES, EI} = erlang:now(),
+    Elapsed = ((EM - SM) * 1000000 + (ES - SS)) * 1000 + ((EI - SI) div 1000),
+    io:format("~s [~p ms]~n", [Name, Elapsed]),
+    ok.
+ 
+spawn_many(0, _, _, _) -> ok;
+spawn_many(N, M, F, A) ->
+    spawn(M, F, A),
+    spawn_many(N - 1, M, F, A).
+ 
+receive_many(0, _) -> ok;
+receive_many(N, M) -> receive M -> receive_many(N - 1, M) end.
+ 
+binary_strings(Done) ->
+    B0 = <<0:(?SIZE*8)>>,
+    B1 = binary_strings_set_bits(B0, lists:seq(0, ?SIZE - 1024, ?SIZE div 1024)),
+    _ = binary_strings_copy_bits(B1, lists:seq(0, ?SIZE - 1024, ?SIZE div 1024)),
+    Done ! done.
+ 
+binary_strings_set_bits(B, []) -> B;
+binary_strings_set_bits(B, [H|T]) ->
+    <<LHS:H/binary, _:1/binary, RHS/binary>> = B,
+    binary_strings_set_bits(<<LHS/binary, (H rem 255), RHS/binary>>, T).
+ 
+binary_strings_copy_bits(B, []) -> B;
+binary_strings_copy_bits(B, [H|T]) ->
+    <<LHS:H/binary, Bit:1/binary, _:1/binary, RHS/binary>> = B,
+    binary_strings_copy_bits(<<LHS/binary, Bit/binary, Bit/binary, RHS/binary>>, T).
+ 
+k6_bytea(Done) ->
+    B = k6_bytea:new(?SIZE),
+    k6_bytea_set_bits(B, lists:seq(0, ?SIZE - 1024, ?SIZE div 1024)),
+    k6_bytea_copy_bits(B, lists:seq(0, ?SIZE - 1024, ?SIZE div 1024)),
+    k6_bytea:delete(B),
+    Done ! done.
+ 
+k6_bytea_set_bits(B, []) -> B;
+k6_bytea_set_bits(B, [H|T]) ->
+    k6_bytea:set(B, H, <<(H rem 255)>>),
+    k6_bytea_set_bits(B, T).
+ 
+k6_bytea_copy_bits(B, []) -> B;
+k6_bytea_copy_bits(B, [H|T]) ->
+    Bit = k6_bytea:get(B, H, 1),
+    k6_bytea:set(B, H + 1, Bit),
+    k6_bytea_copy_bits(B, T).
+{% endhighlight %}
+
+Over 3 runs, `binary_strings` averaged **24,015ms**, and `k6_bytea` **198ms**
+(0.83% time, or 121x speed).
+
+There's nothing very surprising about this; it's large, unwieldy immutable
+data-structures vs. one mutable data-structure.  It's even the case that I have
+no idea if there are any better ways to simulate a byte array in Erlang, either
+with binary strings, or without!
+
+The binary string-manipulating code above is ugly and error-prone, as it's
+clearly not the purpose it was built for.  If it should turn out that this
+really hasn't been done better by someone else, then I encourage you to look to
+and improve [k6_bytea](https://github.com/kivikakk/k6_bytea) for this purpose.
+
+

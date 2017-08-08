@@ -1,0 +1,72 @@
+==================================================================
+https://keybase.io/akhyanaln
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://kivikakk.ee
+  * I am akhyanaln (https://keybase.io/akhyanaln) on keybase.
+  * I have a public key with fingerprint 2139 F66D 5CD8 4A6B 70EB  5BA5 44A3 D2C9 5E26 BB14
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "01014c0453f47ba1dd823fd471d4b1d0ca9904f06436539790ab02b56348f4ee59860a",
+            "fingerprint": "2139f66d5cd84a6b70eb5ba544a3d2c95e26bb14",
+            "host": "keybase.io",
+            "key_id": "44a3d2c95e26bb14",
+            "kid": "01014c0453f47ba1dd823fd471d4b1d0ca9904f06436539790ab02b56348f4ee59860a",
+            "uid": "5912477d1ea48766230e46b60d99d919",
+            "username": "akhyanaln"
+        },
+        "service": {
+            "hostname": "kivikakk.ee",
+            "protocol": "https:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1489365867,
+    "expire_in": 157680000,
+    "prev": "1cdd5b525bfc4de396300159f4a430701297ddb810bedb0d273d655bda3358e3",
+    "seqno": 5,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+
+owGtkmtQlFUYx3cBYVwuq4MyyCXwrRBrwfd+WbsRFklDEIVcSpb37Dm7+7Kwu7y7
+LOzQFoHK4DiFECSOMEkBo1TkUDFuN2YSG8woqUwpGEtBwZwQQzQn6F3GvvWx8+XM
+ec7v/z//55nTFB6o0qi3vT02Upz0yTr11zNAVTB81V6DATv0YPoazIpWNlQGkdNl
+sEoQ02M4gRO0EacZykRzQCQg5EnKBGmOgDQgIG4UBQGnTThLUyxDCZyAiwAnAcNS
+NG+iEWIEnsVFTIeZJJsZyQ5ZsrkUW5KgBBPLQsYIeVpkAYcjwACRoWmRgqRRYBDJ
+AkDQitBid/oVSjggOlGqZFdqysGwEu8/+P85d+WKHSMQJM1xkEAizXMsS1I4olnA
+4lAQoEAIftCJZJtYjhRatFo8ok0ss2FeHaaU3ZIR+Sfrb+UuYpXcklW0WlMRUrQO
+2e6yG+1lyoXF5XI49X6hy+Pwk1UIGO56GIBkg8ocFYUbyU7JbsP0hEIaXZLflKB5
+QemGZzkdhqodkowMkp9gOJbHleV/B7kVS8IIIQOYApIBJiMNESWwFI4TjGCiRZrC
+OZwgBQ5CwBM4QBDgkOQoyDIMgCJFMTyiMH9bFTY7pmeUnKJZ8XRKZpvoqpQR5tU0
+BsQFqdQaVfCqAP8PU2lWr/n327W3aJceDpmMvvbVKflwvDZlcPKZ3Zn5neUtixpv
+yrqmqZNPTjSUWD+2+C6QjbnRuunxNsNwebr43Qe/yoOft1cnByVeSuMnmj1xu8xd
+C75X1d0RGfuX47NeSP92tLTt3Jf2ncc+S0H7Ml+evFyz2DeQF9PvW5xXT4w8fo/q
+aNdAsF1lwwIfGOv1OqpfeWL094Uq3+sb8NYwTUdbw+33q7bciLvebL12Ijp2k/mP
+5lvytlOGrO9vyh17QqZC85qrCiM6F0ZC7y3pS9xx+2n9rYH2gwfW0hcLtDGd+zK8
+2Di1s5vf+80ZIbhDm2Bdzn73ylauJfTDl4bnaurnu/Mu1L35Y8RMev6loFrDD8un
+3yrMjdrY2BBwuDDp6loxl5nTvrNx06fFOb3NztC951qH9+S4x3vTsAPFURWPpG2f
+2sySq4LoyOPOO3d0gQFnjxTtWFp6sLX+J3dp1lxH0RWNZn3YdO2UdPH8tLmvImnr
+fOfzj+Um1Q6Fqy9PF1dmxzcdOvNs/URt18GxY9vF2JJfPNr9G5ZP5PxcFJ+pm4lM
+6/koMTL+vbOvvRFR96jKm9EfmzrT6Wt130RDN9b7ehJetLiOz1rSvdl1X+S4dg0F
+gbS/7v/T9pCl5znLan31b4NoFJxfk7wQ5Tm09Hd9W35/2ObryWL2U6VHCk7eV7wl
+ZtacEL7cOH+6Ua+XZ/VHsdmQfwA=
+=hTSo
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/akhyanaln
+
+==================================================================
