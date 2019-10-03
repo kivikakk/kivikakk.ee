@@ -385,7 +385,7 @@ Here's a PoC in action, artifically slowed down so you can watch its progress:
 
 Too simple!  Now that you have the key (or rather, the SHA1 of the MD5 hexstring of the key — good enough), you can feel free to change the data in the session, do what you like, and become whom you like.  Maybe even realise that PHP serialisation admits arbitrary objects, which you might be able to do something special with.
 
-If you liked the article, please share!  I also welcome your feedback/thoughts on [Twitter](https://twitter.com/kivikakk).  Special thanks to [Kairi](https://twitter.com/ibutsu) for editing this article.
+If you liked the article, please share!  I also welcome your feedback/thoughts on [Twitter](https://twitter.com/kivikakk).  Special thanks to Kairi for editing this article.
 
 The PoC code follows.  Enjoy!
 
