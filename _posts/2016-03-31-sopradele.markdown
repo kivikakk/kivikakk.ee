@@ -18,7 +18,7 @@ laughing together.
 When you find the time to show up  
 there's no need to speak first.  
 We can just be there for each other  
-and let the nights feel like months.
+and at night we can watch the moon.
 
 'cause now I know that every day  
 I can give you a hand.  
