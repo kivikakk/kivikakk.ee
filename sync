@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -ex
+
+cd "$(dirname "$0")" || exit 1
+
+rm -fr _site
+bundle exec jekyll build
+
+rsync -avz --delete _site/ miriam:/var/www/kivikakk/
