@@ -4,7 +4,7 @@ set -ex
 
 cd "$(dirname "$0")" || exit 1
 
-rm -fr _site
-bundle exec jekyll build
+rm -fr public
+hugo
 
-rsync -avz --delete _site/ miriam:/var/www/kivikakk/
+rsync -avz --delete public/ miriam:/var/www/kivikakk/

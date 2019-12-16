@@ -1,6 +1,0 @@
-name: kivikakk.ee
-description: kivikakk's range
-url: https://kivikakk.ee
-highlighter: rouge
-mimezone: Australia/Melbourne
-exclude: ["sync", ".bundle", "vendor", "Gemfile", "Gemfile.lock"]
