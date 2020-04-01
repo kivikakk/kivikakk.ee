@@ -4,3 +4,4 @@ languageCode = "en-us"
 theme = "minos"
 
 [params]
+customCss = ["css/kivi.css"]

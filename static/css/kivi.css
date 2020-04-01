@@ -1,0 +1,39 @@
+:root {
+	--c1: #9E9885;
+	--c2: #7C7F65;
+	--c3: #E6CCBE;
+	--c4: #D4B483;
+	--c5: #5F5449;
+}
+
+body {
+	background-color: var(--c1);
+}
+
+.logo-text {
+	color: var(--c5);
+}
+
+#header, .article {
+	border-bottom-color: var(--c2);
+}
+
+/* a.article-title, .article-title, .article-entry, .footer-info {
+	color: #fff;
+} */
+
+.article-meta a, .article-footer a {
+	color: var(--c3);
+}
+
+.article-entry a {
+	color: var(--c5);
+	/* border-bottom-color: #fff; */
+}
+
+/*
+.article-entry a:hover {
+	color: #fff;
+	border-bottom-color: #fff;
+}
+*/
