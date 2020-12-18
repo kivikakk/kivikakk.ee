@@ -7,4 +7,4 @@ cd "$(dirname "$0")" || exit 1
 rm -fr public
 hugo
 
-rsync -avz --delete public/ miriam:/var/www/kivikakk/
+rsync -avz --delete public/ talia:/usr/home/kameliya/www/kivikakk/
