@@ -1,7 +1,0 @@
-title = "kivikakk.ee"
-baseURL = "https://kivikakk.ee/"
-languageCode = "en-us"
-theme = "minos"
-
-[params]
-customCss = ["css/kivi.css"]

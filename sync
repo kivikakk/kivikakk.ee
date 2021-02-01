@@ -4,7 +4,4 @@ set -ex
 
 cd "$(dirname "$0")" || exit 1
 
-rm -fr public
-hugo
-
-rsync -avz --delete public/ talia:/usr/home/kameliya/www/kivikakk/
+rsync -avz --exclude .git --exclude sync --exclude README.md --delete ./ talia:/usr/home/kameliya/www/kivikakk/
