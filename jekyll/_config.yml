@@ -1,7 +1,7 @@
 # Setup
 title: kivikakk.ee
 url: https://kivikakk.ee
-paginate: 1
+paginate: 5
 baseurl: ""
 permalink: pretty
 
@@ -38,5 +38,5 @@ version: 3.0.0
 
 # Navbar page list
 nav:
-  - title: Archive
-    url: /archive
+  - title: All
+    url: /all

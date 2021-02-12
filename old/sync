@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -ex
-
-cd "$(dirname "$0")" || exit 1
-
-rsync -avz --exclude .git --delete ./ talia:/usr/home/kameliya/www/kivikakk/
