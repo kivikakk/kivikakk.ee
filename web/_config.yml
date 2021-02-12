@@ -1,0 +1,42 @@
+# Setup
+title: kivikakk.ee
+url: https://kivikakk.ee
+paginate: 1
+baseurl: ""
+permalink: pretty
+
+# Gems
+plugins:
+  - jekyll-gist
+  - jekyll-paginate
+  - jekyll-seo-tag
+
+# Optimize Jekyll
+exclude:
+  - .editorconfig
+  - .git
+  - .jekyll-cache
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE.md
+  - README.md
+
+sass:
+  sass_dir: _sass
+  style: :compressed
+
+# Options
+
+# Specify the author for blog posts
+author:
+  name: Asherah Connor
+  url: https://kivikakk.ee
+  email: ashe@kivikakk.ee
+
+# Custom vars
+version: 3.0.0
+
+# Navbar page list
+nav:
+  - title: Archive
+    url: /archive
