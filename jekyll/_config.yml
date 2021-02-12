@@ -18,7 +18,7 @@ exclude:
   - .jekyll-cache
   - Gemfile
   - Gemfile.lock
-  - LICENSE.md
+  - THEME-LICENSE.md
   - README.md
 
 sass:
