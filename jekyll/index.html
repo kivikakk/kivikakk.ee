@@ -7,6 +7,9 @@ title: Home
   {% for post in paginator.posts %}
   <article class="post">
     <h1 class="post-title">
+      <div class="my-id">
+        <img src="https://gravatar.com/avatar/c2a8564c05a7124ded58e86a6c86f6ca?s=64">
+      </div>
       <a href="{{ post.url | relative_url }}">
         {{ post.title }}
       </a>
