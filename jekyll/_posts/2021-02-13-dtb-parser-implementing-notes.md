@@ -11,12 +11,14 @@ Learn from my mistakes!
 
 ## If you try to do it in one pass, you will hurt yourself
 
-I charged headlong into writing
+<a id="more"></a>I charged headlong into writing
 [dtb.zig](https://github.com/voorjaar/windicss/wiki/Introduction#what-is-windicss)
 by starting at the top of the Devicetree Specification page on the "Flattened
 Devicetree (DTB)" Format" and reading down. It looked delightfully simple. Keep
 in mind, I still didn't know what I yet needed out of it, just that I probably
 needed to reference the DTB to get it.  (I [kind of know better now](https://github.com/kivikakk/daintree/commit/1a65076a36301f0fb33748b8da644010a178b58e#diff-5e1ca02318cf3679c3aa9a422be7adfefe1fefdd76d297d676770edeacdb5e67R329-R349).)
+
+<!--more-->
 
 The tree was taking shape, and then I had to parse the contents of one field by
 the contents of a prop in its parent ([`#address-cells` and

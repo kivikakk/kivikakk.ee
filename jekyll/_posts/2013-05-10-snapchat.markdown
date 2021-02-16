@@ -1,0 +1,361 @@
+---
+layout: post
+title: "Snapchat: not for state secrets"
+date: 2013-05-10T10:44:00Z
+categories: 
+---
+
+I use [Snapchat](http://www.snapchat.com/).  It's an app where you can take a
+photo or short (&lt; 10 second) video and send it to your friends who use the
+service; they'll then be able to see it, once, before it disappears forever.
+
+Ostensibly, the app is for sexting, because there's no fear that your photo
+will get spread around (no forwarding/etc.) or retained for longer than you'd
+like, but it [seems like it's not as much a sexter's hangout as the media might
+want you to
+think](http://survata.com/blog/is-snapchat-only-used-for-sexting-we-asked-5000-people-to-find-out/).
+
+My circle of friends use it basically as an extension of weird Twitter -- most
+snaps I send and receive are strange angles of weird objects; the completely
+mundane but somehow therapeutic (7 seconds of the camera pointed outside the
+window of a tram, pointed at the ground moving below); or just closeups of
+[Curtis Stone's face](https://www.google.com.au/search?q=curtis+stone),
+wherever we see him.
+
+<img style="border: 1px solid #000; margin: 0px auto; display: block;"
+title="Curtis Stone. Ugh." src="/assets/post-img/stone.jpg">
+
+<a id="more"></a>Of course, the promise that they won't get retained is just that: a promise.
+Since your phone receives this image and shows it to you at some point, it must
+be downloaded by your phone.  If it can be downladed by the phone, it can be
+downloaded by something else.  We decided to find out how.
+
+<!--more-->
+
+My first thought was to use
+[Cain](http://en.wikipedia.org/wiki/Cain_and_Abel_%28software%29) to re-route
+the phone's traffic to Snapchat via a computer with ARP poisoning, then
+Wireshark to packet-sniff.  For whatever reason, we weren't able to make this
+work; while we did see some of the traffic (the non-HTTPS stuff), HTTPS
+wouldn't seem to pass through my friend's computer.
+
+Another got to work using a different set of tools on a Linux machine to do ARP
+stuff, and I took a more direct route.
+
+First, I set my phone's proxy on WiFi to point to my machine.  Then I just
+listened with netcat.  After receiving lots of apparently unrelated requests
+(and the aforementioned HTTP requests[^flurry]), I found that Snapchat was
+requesting an SSL forward:
+
+    $ nc -l -p 5588
+    CONNECT feelinsonice.appspot.com:443 HTTP/1.1
+    Host: feelinsonice.appspot.com
+
+"feelinsonice".  Snapchat are hosted on GAE!
+
+Having confirmed confirmed that this is a worthwhile approach, I wrote a little
+Ruby to receive requests and start coaxing data from Snapchat.  The first
+iteration was something like this:
+
+{% highlight ruby %}
+#!/usr/bin/env ruby
+
+require 'openssl'
+require 'socket'
+
+l = TCPServer.new(5588)
+l.listen(10)
+
+while true
+  s = l.accept
+
+  d = s.readpartial(8192)
+  if d !~ /CONNECT feelinsonice.appspot.com:443/
+    STDERR.puts "rejecting unwanted client #{d.inspect}"
+    s.close
+    next
+  end
+
+  STDERR.puts "probably good client #{d.inspect}"
+
+  ctx = OpenSSL::SSL::SSLContext.new("SSLv23_server")
+  ctx.cert = OpenSSL::X509::Certificate.new(File.read("server.crt"))
+  ctx.key = OpenSSL::PKey::RSA.new(File.read("server.key"))
+  ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+  s.write "HTTP/1.1 200 OK\r\n\r\n"
+  s.flush
+
+  ss = OpenSSL::SSL::SSLSocket.new(s, ctx)
+  ss.accept
+
+  STDERR.puts "I THINK WE'RE IN, JOHN."
+
+  d = ss.readpartial(8192)
+  STDERR.puts "got data: #{d.inspect}"
+
+  ss.close
+  s.close
+end
+{% endhighlight %}
+
+To go with, I generated `server.crt` and `server.key` with CN `*.appspot.com`,
+wondering if Snapchat are checking for a valid cert or not.
+
+Turns out they are: I was getting `EOFError` thrown at the last `readpartial`
+call, so presumably that was Snapchat not liking my identity.
+
+Thankfully, the workaround wasn't hard: make a local CA, install its
+certificate on the phone, re-generate the SSL certificate with that
+CA[^ssl-ca], and away we go!
+
+Next, capture the data from the phone, and establish the connection to Snapchat
+ourselves to complete this man-in-the-middle. We put this after reading the
+first block of data from the client above:
+
+{% highlight ruby %}
+# make the real connection
+begin
+  up = TCPSocket.new('feelinsonice.appspot.com', 443)
+rescue Errno::ECONNREFUSED
+  STDERR.puts "snapchat getting weary?"
+  ss.close rescue false
+  s.close rescue false
+  next
+end
+
+ups = OpenSSL::SSL::SSLSocket.new(up.to_io)
+ups.connect
+
+ups.write(d)
+STDERR.puts "forwarded request from phone"
+
+while true
+  begin
+    r = ups.readpartial(1024)
+  rescue EOFError
+    STDERR.puts "no more"
+    ss.close
+    s.close
+    break
+  end
+  STDERR.puts "they say: #{r.inspect}"
+
+  # send back to phone
+  ss.write(r)
+  
+  STDERR.puts "written back"
+
+  break if r.length.zero?
+end
+
+STDERR.puts "quiet"
+{% endhighlight %}
+
+We open a regular SSL socket to Snapchat's GAE server, forward the request from
+the phone, and read back what Snapchat said.
+
+It turns out this is enough to start getting sensitive data in a form where we
+can attack it offline[^http].
+
+Add some logging of responses to file; you'll see a request to `/ph/sync`,
+followed by a bulk of data indicating who our friends are, and information
+regarding new snaps.  Then, the phone will try to fetch those snaps: you'll see
+requests to `/ph/blob`, like:
+
+    /ph/blob?id=...&username=hellomoto&timestamp=1368171438418&req_token=...
+
+It turns out all the data required is in the URI; no funny header business.
+You can paste the requested URL directly into a browser and fetch the blob.
+
+What you get is identified by the BSD file tool as `data` -- not obviously an
+image, video, or whatever, nor any headers indicating encryption or
+compression.
+
+First, I had a look at the size: 19,712 bytes, which is divisible by 256.  This
+feels like too much of a coincidence; I'd be surprised by divisibility by
+anything above 4 or 8.  My going assumption is that images are transferred in
+JPEG, and ~half the JPEGs I looked at on my disk have odd numbers of bytes, so
+I'm guessing there's nothing frame-y about JPEG that would cause the plaintext
+to be in a regular block of bytes -- so conclusion, it's probably a block
+cipher.
+
+Next, it was time to see if there were any obvious cryptographic errors.  A
+repeated block in the ciphertext might give us a hint about the encryption
+mode.
+
+Sure enough, a repeated 16-byte block:
+
+{% highlight ruby %}
+> data = File.open('x', 'r:ASCII-8BIT').read; nil
+=> nil
+> data.bytes.each_slice(16).to_a.length
+=> 1232
+> data.bytes.each_slice(8).to_a.length
+=> 2464
+> data.bytes.each_slice(8).to_a.uniq.length
+=> 2462
+> data.bytes.each_slice(16).to_a.length
+=> 1232
+> data.bytes.each_slice(16).to_a.uniq.length
+=> 1231
+>
+{% endhighlight %}
+
+So apparently a 16-byte (128-bit) block cipher, in [ECB
+mode](http://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Electronic_codebook_.28ECB.29)
+at that.  (Not a good thing.)   Seeing as there wasn't a demonstration of a lot
+of intelligence this far, I started to wonder if it wasn't just XORed, as it'd
+look the same.
+
+A [friend on Twitter
+noted](https://twitter.com/kyhwana/status/332770066150068227) that the repeated
+block was at the same location as JPEG files have a string of repeated bytes.
+
+Here's a JPEG surrounding the repeated bytes:
+
+    00000a0: 090c 0b0c 180d 0d18 3221 1c21 3232 3232  ........2!.!2222
+    00000b0: 3232 3232 3232 3232 3232 3232 3232 3232  2222222222222222
+    00000c0: 3232 3232 3232 3232 3232 3232 3232 3232  2222222222222222
+    00000d0: 3232 3232 3232 3232 3232 3232 3232 ffc0  22222222222222..
+
+Here's the ciphertext around the repeated 16-byte blocks:
+
+    0000060: 61e0 3cb3 ca5d 4ebe 4cd9 2212 3e9a 40ba  a.<..]N.L.".>.@.
+    0000070: 39e4 8dc2 ac39 8f10 59d8 fc08 9d19 b239  9....9..Y......9
+    0000080: 39e4 8dc2 ac39 8f10 59d8 fc08 9d19 b239  9....9..Y......9
+    0000090: 4614 4d69 7c61 5d11 cabb 5310 1697 5b4f  F.Mi|a]...S...[O
+
+Note that the `32` bytes are more than 2x 16-byte blocks in length: they extend
+well before and after the 16-byte alignment.  But the ciphertext doesn't show
+that at all: this rules out a plain repeating XOR, as we'd otherwise expect to
+see something more like this:
+
+    0000060: 61e0 3cb3 ca5d 4ebe 4cd9 2212 9d19 b239  a.<..]N.L."....9
+    0000070: 39e4 8dc2 ac39 8f10 59d8 fc08 9d19 b239  9....9..Y......9
+    0000080: 39e4 8dc2 ac39 8f10 59d8 fc08 9d19 b239  9....9..Y......9
+    0000090: 39e4 8dc2 ac39 8f10 59d8 fc08 9d19 5b4f  9....9..Y.....[O
+
+... assuming the `32` bytes above are exactly the number you'd expect to find
+anywhere, which isn't the case; but you get the point: there'd be some, but
+there are none.  The key and data are totally mixed, which suggests a real
+block cipher.
+
+Since there aren't really good ways to attack this directly (at least, not for
+me, an utter novice), it seemed much faster just look for the cipher/key/etc.
+in the source.
+
+I was thinking I'd have to do some MitM of Google Play or root my Android, but
+it turns out Googling 'snapchat apk download' is enough. Hah.
+
+The first tool I found for getting the contents and decompiling the APK was
+[android-apktool](http://code.google.com/p/android-apktool/); there are surely
+better tools (this gives you smali output, not Java or Java-ish), but it was
+easy enough to peruse, given I just wanted to know what the key was and what
+primitives were being used.
+
+The code was totally unobfuscated, so it wasn't hard to find the
+`com.snapchat.android.api.SnapchatServer`: the `.smali` file is a bit weird to
+read, but sure enough there's:
+
+    .field private static final BASE_URL:Ljava/lang/String; =
+            "https://feelinsonice.appspot.com"
+
+and:
+
+    .line 247
+    .local v2, image:[B
+    sget-object v6, Lcom/snapchat/android/util/AESEncrypt;->ENCRYPT_KEY_2:Ljava/lang/String;
+
+    invoke-static {v2, v6},
+            Lcom/snapchat/android/util/AESEncrypt;->encrypt([BLjava/lang/String;)[B
+
+    move-result-object v0
+
+    .line 248
+    .local v0, encryptedImage:[B
+                             
+I guess that'd be like:
+
+{% highlight java %}
+// byte[] image;
+byte[] encryptedImage = AESEncrypt.encrypt(image, AESEncrypt.ENCRYPT_KEY_2);
+{% endhighlight %}
+
+or something.  I don't actually do Java, so maybe that's all backwards, but the
+point seems pretty clear.  It occurs to me I'm reading the encryption code, but
+while there are two keys, only ENCRYPT_KEY_2 is ever used.
+
+So, what encryption is going on?  `AESEncrypt.smali` reads:
+
+    .line 8
+    const-string v0, "1234567891123456"
+
+    sput-object v0, Lcom/snapchat/android/util/AESEncrypt;->ENCRYPT_KEY:Ljava/lang/String;
+
+    .line 9
+    const-string v0, "M02cnQ51Ji97vwT4"
+
+    sput-object v0, Lcom/snapchat/android/util/AESEncrypt;->ENCRYPT_KEY_2:Ljava/lang/S
+
+Here are the keys!  Is it really as simple as 128-bit AES in ECB mode?
+
+    .line 21
+    const-string v3, "AES/ECB/PKCS5Padding"
+
+Looks like it.  Note the padding scheme; seems weird to use PKCS#5 which has
+apparently "only been defined for block ciphers that use 64 bit (8 byte) block
+size", when the size here is 128-bit.  Let's give it a go.
+
+{% highlight ruby %}
+> data = File.open('x', 'r:ASCII-8BIT').read; nil
+=> nil
+> c = OpenSSL::Cipher.new('AES-128-ECB')
+=> #<OpenSSL::Cipher:0x007f8182658618>
+> c.decrypt
+=> #<OpenSSL::Cipher:0x007f8182658618>
+> c.key = 'M02cnQ51Ji97vwT4'
+=> "M02cnQ51Ji97vwT4"
+> o = ''.force_encoding('ASCII-8BIT')
+=> ""
+> data.bytes.each_slice(16) {|s| o += c.update(s.map(&:chr).join)}
+=> nil
+> o += c.final; nil
+=> nil
+> o[0...60]
+=> "\xFF\xD8\xFF\xE0\0\x10JFIF\0\x01\x01\0\0\x01\0\x01\0\0\xFF\xDB\0C\0\x14\x0E\
+x0F\x12\x0F\r\x14\x12\x10\x12\x17\x15\x14\x18\x1E2!\x1E\x1C\x1C\x1E=,.$2I@LKG@FE
+PZ"
+>
+{% endhighlight %}
+
+JFIF! Hello! We got our man.
+
+<img style="border: 1px solid #000; margin: 0px auto; display: block;"
+title="Thanks, @lapscallion." src="/assets/post-img/snapchat.jpg">
+
+That's as far as I got; it was at this stage that I thought of Googling the
+encryption key, to see if anyone else had tried this.
+[Seems](http://adamcaudill.com/2012/12/31/revisiting-snapchat-api-and-security/)
+[they](https://github.com/tlack/snaphax)
+[had](https://gist.github.com/NeilHanlon/4686779).  Still, I'm glad it wasn't
+until here that I searched.
+
+Many thanks to the [Matasano crypto
+challenges](http://www.matasano.com/articles/crypto-challenges/) -- some of the
+above came from knowledge picked up doing them.
+
+The conclusion is that it's easy to intercept and decrypt the data Snapchat on
+your phone receives; it'd be one, maybe two hours of work to turn the above
+code into something I could just switch on and forget about, while it happily
+archives every Snapchat I ever receive.
+
+Truth be told, I can't be bothered -- it's fun, and I don't want to ruin the
+unique feeling it has by virtue of being an ephemeral medium -- but don't think
+it's hard for someone who cared enough to.
+
+[^flurry]: To [Flurry](http://www.flurry.com/), a mobile analytics company, containing data like my phone model, screen res, probably some unique ID ...
+
+[^ssl-ca]: I used [this guide](http://www.freebsdmadeeasy.com/tutorials/freebsd/create-a-ca-with-openssl.php), but there are better ones out there which are probably more explanatory.
+
+[^http]: Note that this client doesn't speak HTTP; accordingly, it doesn't know when to close the connection (GAE's HTTP server sends the responses with `Content-Length`, so we should parse that and know when we've received all the data, but it's easier just to restart the server over and over at this stage).

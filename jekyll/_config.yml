@@ -4,6 +4,7 @@ url: https://kivikakk.ee
 paginate: 5
 baseurl: ""
 permalink: pretty
+excerpt_separator: <!--more-->
 
 # Gems
 plugins:

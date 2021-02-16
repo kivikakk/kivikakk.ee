@@ -17,7 +17,11 @@ title: Home
 
     <time datetime="{{ post.date | date_to_xmlschema }}" class="post-date">{{ post.date | date_to_string }}</time>
 
-    {{ post.content }}
+    {{ post.excerpt }}
+
+    {% if post.content.size > post.excerpt.size %}
+      <a href="{{ post.url | relative_url }}#more">Read more!</a>
+    {% endif %}
   </article>
   {% endfor %}
 </div>
