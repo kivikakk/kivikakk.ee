@@ -42,7 +42,7 @@ mapping in ASCII, that people all tried to make their own ways to get around
 this---none of which interoperated particularly well---and that at some stage,
 a bunch of smart people decided to create Unicode, which assigns a unique
 integer codepoint to every character of every language (and then some), such
-that the character just mentioned is `U+604b`, and that there are character
+that the character just mentioned is <a id="604b"></a>`U+604b`, and that there are character
 encodings, like UTF-8, which are used to represent the codepoints in a
 bytestream, such that `恋` becomes `e6 81 8b`.
 
