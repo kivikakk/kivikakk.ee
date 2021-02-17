@@ -5,11 +5,6 @@ date: 2012-04-18T11:10:00Z
 categories: 
 ---
 
-I originally published this post on a previous blog on this date.  That blog
-has since been removed, but I think it's a decent enough post to revive.
-
-----
-
 As programmers, we spend a lot of time just carting data from one place to
 another.  Sometimes that's the entire purpose of a program or library (data
 conversion whatevers), but more often it's just something that needs to happen
