@@ -539,17 +539,21 @@ of the system which knows how to do it should do it instead.  Knowing when
 
 Q. When will the above go terribly wrong?
 
-A. [When a deficient language tries to automate security](http://php.net/manual/en/security.magicquotes.php),
+A. [When a deficient language tries to automate security](http://web.archive.org/web/20171002204939/http://php.net/manual/en/security.magicquotes.php),
 and finds that's actually not possible according to the definition of security.
 
 Hello, your database is now full of backslashes.  Unfortunately, magic quotes
 is enabled at the level of the webserver, so if your host has it enabled, you
-have to try to turn it off.  [Look at that Example #2.  Mmmmmm.](http://www.php.net/manual/en/security.magicquotes.disabling.php)
+have to try to turn it off.  [Look at that Example #2.  Mmmmmm.](http://web.archive.org/web/20210101040748/https://www.php.net/manual/en/security.magicquotes.disabling.php)
 
 Do **not** rely on broken auto-escaping.  Your code will become unportable (and
 insecure) if you end up hosting the same stuff elsewhere where this process
 does not take place.  It's tantamount to assuming all data will come in encoded
 in UTF-16 and being surprised when your application breaks at inopportune moments.
+
+(Edit 2021-02-18: I've needed to put in archive links here, as this has been
+thoroughly sweeped under the rug; deprecated in PHP 5.3 and removed in PHP 5.4.
+Keep in mind you can still find PHP 4 webhosting if you search for it.)
 
 ## The golden rule
 
