@@ -20,6 +20,8 @@ needed to reference the DTB to get it.  (I [kind of know better now](https://git
 
 <!--more-->
 
+---
+
 The tree was taking shape, and then I had to parse the contents of one field by
 the contents of a prop in its parent ([`#address-cells` and
 `#size-cells`](https://devicetree-specification.readthedocs.io/en/latest/chapter2-devicetree-basics.html#address-cells-and-size-cells)).

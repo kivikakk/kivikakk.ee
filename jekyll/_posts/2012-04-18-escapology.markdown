@@ -30,6 +30,8 @@ into it.
 
 <!--more-->
 
+---
+
 If you're like me and you come from an English-speaking country, there's a good
 chance that this might seem farfetched, or totally obvious but lacking in
 depth.  The letter `A` is represented in ASCII by the integer 65, or hex `41`.

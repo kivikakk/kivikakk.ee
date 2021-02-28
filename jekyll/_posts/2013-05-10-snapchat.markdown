@@ -32,6 +32,8 @@ downloaded by something else.  We decided to find out how.
 
 <!--more-->
 
+---
+
 My first thought was to use
 [Cain](http://en.wikipedia.org/wiki/Cain_and_Abel_%28software%29) to re-route
 the phone's traffic to Snapchat via a computer with ARP poisoning, then

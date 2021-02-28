@@ -19,6 +19,8 @@ The attack described in the post depends on a lot of things to go right (or wron
 
 <!--more-->
 
+---
+
 ### what are sessions and why do you want them?
 
 When you visit a website, you might want to log in, and have the website remember that you're logged in.
