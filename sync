@@ -4,6 +4,6 @@ set -ex
 
 cd "$(dirname "$0")" || exit 1
 
-(cd jekyll && bundle && bundle exec jekyll build)
+(cd jekyll && bundle && bundle exec jekyll build --lsi)
 rsync -avz --exclude .git --delete ./jekyll/_site/ talia:/usr/home/kameliya/www/kivikakk/
 rsync -avz --exclude .git --delete ./archive/ talia:/usr/home/kameliya/www/kivikakk/archive/
