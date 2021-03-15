@@ -9,7 +9,8 @@ here too much, but seeing as we're not on any social media, this might be a
 time to introduce one to the other.
 
 **Content note**: trigger warnings etc. are rarely used.  Read at your own
-risk.  Content is highly personal and often covers developmental issues.
+risk.  Content is highly personal and often covers developmental and sexual
+issues.
 
 <!--more-->
 
@@ -20,4 +21,4 @@ dream we had last night, with a whole lot of background history.
 
 There are more posts but a public index isn't included because some of it
 really goes off the deep end.  We are still contemplating how best to share.
-If you have any ideas, feel free to email at ashe@ or lia@ this domain.
+If you have any ideas, feel free to email at `ashe@` or `lia@` this domain.
