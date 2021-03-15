@@ -30,9 +30,9 @@
   --blue-400: #4dabf7;
   --yellow-100: #fff3bf;
 
-  --body-font: "Libre Baskerville",serif;
+  --body-font: "Merriweather",serif;
   --body-font-size: 18px;
-  --body-line-height: 1.5;
+  --body-line-height: 1.7;
   --body-color: var(--gray-700);
   --body-bg: #fff;
 
@@ -55,22 +55,22 @@
 }
 
 @font-face {
-  font-family: "Libre Baskerville";
-  src: url("/assets/fonts/LibreBaskerville-Regular.ttf") format('truetype');
+  font-family: "Merriweather";
+  src: url("/assets/fonts/Merriweather-Regular.ttf") format('truetype');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Libre Baskerville";
-  src: url("/assets/fonts/LibreBaskerville-Italic.ttf") format('truetype');
+  font-family: "Merriweather";
+  src: url("/assets/fonts/Merriweather-Italic.ttf") format('truetype');
   font-weight: 400;
   font-style: italic;
 }
 
 @font-face {
-  font-family: "Libre Baskerville";
-  src: url("/assets/fonts/LibreBaskerville-Bold.ttf") format('truetype');
+  font-family: "Merriweather";
+  src: url("/assets/fonts/Merriweather-Bold.ttf") format('truetype');
   font-weight: 700;
   font-style: normal;
 }
