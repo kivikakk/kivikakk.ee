@@ -24,8 +24,10 @@
 
 // Navbar styles
 .nav {
-  float: right;
-  line-height: 1.25rem;
+  @media (min-width: 30em) {
+    float: right;
+    line-height: 1.25rem;
+  }
   word-spacing: 1rem;
 
   small {

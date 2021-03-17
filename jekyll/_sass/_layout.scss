@@ -13,10 +13,21 @@
 }
 
 .about-photos {
-  float: right;
-
+  text-align: center;
   img {
-    margin-left: 1rem;
+    width: 45%;
+    display: inline;
+  }
+
+  @media (min-width: 30em) {
+    float: right;
+
+    img {
+      width: 200px;
+      text-align: inherit;
+      display: block;
+      margin-left: 1rem;
+    }
   }
 }
 

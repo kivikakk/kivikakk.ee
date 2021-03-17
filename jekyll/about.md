@@ -4,8 +4,8 @@ title: About
 ---
 
 <div class="about-photos">
-<img src="/assets/lia600.jpg" width="200" title="Art of Lia, by skpd__@Twitter">
-<img src="/assets/asherah.jpg" width="200" title="Photo of Asherah">
+<img src="/assets/lia600.jpg" title="Art of Lia, by skpd__@Twitter">
+<img src="/assets/asherah.jpg" title="Photo of Asherah">
 </div>
 
 Hiya!  I'm Asherah/Lia, a systems/embedded software engineer from Melbourne,
