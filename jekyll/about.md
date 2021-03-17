@@ -31,4 +31,7 @@ My main interests at the moment include:
 * FPGA hardware development
 * Getting better at DDR again!
 
+I also enjoy [motorcycling in the hills](/assets/kalorama.jpg), [beatmania
+IIDX](https://sp12.iidx.app/sheets/4791-2487/clear), and birds.
+
 [^frankly]: Frankly, these are some of the most boring aspects of my life, but I hope others like me --- who might feel besieged by the world sometimes --- can take comfort knowing there's representation out there.  Reach out if you need to.
