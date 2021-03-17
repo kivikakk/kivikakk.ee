@@ -39,5 +39,8 @@ version: 3.0.0
 
 # Navbar page list
 nav:
-  - title: All
+  - title: "All posts"
     url: /all
+
+  - title: About
+    url: /about

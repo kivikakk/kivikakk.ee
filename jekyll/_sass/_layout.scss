@@ -12,6 +12,14 @@
   }
 }
 
+.about-photos {
+  float: right;
+
+  img {
+    margin-left: 1rem;
+  }
+}
+
 .container {
   max-width: 820px;
   padding-left: var(--spacer-2);
