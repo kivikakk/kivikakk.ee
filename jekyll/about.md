@@ -17,7 +17,7 @@ contracting; lately I've done post-incident security analysis, and
 pre-acquisition due diligence whole codebase review.  Contact me at `ashe@`
 this domain if you'd like to discuss anything!
 
-I make an effort to represent my whole self online.  I'm trans, plural,
+I make an effort to represent my whole self online.  I'm trans, plural, poly,
 furry, asexual[^frankly], and committed to nuanced and careful discussion about identity.  
 
 I don't really use social media any more, but you can catch me on the [Zig
