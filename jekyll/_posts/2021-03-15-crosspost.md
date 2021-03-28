@@ -8,9 +8,9 @@ My other half --- not my partner, but the other half that makes "Asherah" up
 here too much, but seeing as we're not on any social media, this might be a
 time to introduce one to the other.
 
-**Content note**: trigger warnings etc. are rarely used.  Read at your own
-risk.  Content is highly personal and often covers developmental and sexual
-issues.
+<a id="more"></a>**Content note**: trigger warnings etc. are rarely used.  Read
+at your own risk.  Content is highly personal and often covers developmental
+and sexual issues.
 
 <!--more-->
 
