@@ -39,7 +39,7 @@ The three major events were:
 ---
 
 Daniel Andrews, Victoria's Premier, is widely liked, and he's largely been
-credited with producing the results we've seen locally, the likes of which have
+credited with producing the results we've had locally, the likes of which have
 only really been seen in Taiwan, New Zealand and Singapore.  We've had our
 share of anti-lockdown protests, too, but overall the sentiment has been that
 Victorians have been willing to accept discomfort up front to mitigate a
@@ -57,7 +57,7 @@ months.
 It's a fucking pandemic.  You don't just ask everyone nicely to please do the
 right thing, because that's not human beings work at the population level.  If
 you _actually_ want to beat it, you need to be realistic about what works.
-Ideals falls flat in the face of an airborne pathogen.  If there are any doubts
+Ideals fall flat in the face of an airborne pathogen.  If there are any doubts
 about that, please consult [the big red number at the top
 left](https://coronavirus.jhu.edu/map.html).  Empirically, government
 interference gets it done[^hif].
