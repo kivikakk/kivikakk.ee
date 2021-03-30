@@ -26,7 +26,7 @@ Discord](https://github.com/ziglang/zig/wiki/Community#discord) and
 
 My main interests at the moment include:
 
-* ARM and RISC-V architectures (see [Daintree](https://github.com/kivikakk/daintree))
+* ARM and RISC-V architectures (see [Daintree](https://daintr.ee))
 * [Zig](https://ziglang.org)
 * FPGA hardware development
 * Getting better at DDR again!
