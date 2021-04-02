@@ -12,6 +12,7 @@ plugins:
   - jekyll-paginate
   - jekyll-seo-tag
   - jekyll-sitemap
+  - jekyll-last-modified-at
 
 # Optimize Jekyll
 exclude:

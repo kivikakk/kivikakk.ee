@@ -6,6 +6,7 @@ gem "jekyll-gist"
 gem "jekyll-paginate"
 gem "jekyll-seo-tag"
 gem "jekyll-sitemap"
+gem "jekyll-last-modified-at"
 gem "ffi", "1.14.2"
 
 gem "webrick"
