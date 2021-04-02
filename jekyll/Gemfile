@@ -5,6 +5,7 @@ gem "classifier-reborn"
 gem "jekyll-gist"
 gem "jekyll-paginate"
 gem "jekyll-seo-tag"
+gem "jekyll-sitemap"
 gem "ffi", "1.14.2"
 
 gem "webrick"
