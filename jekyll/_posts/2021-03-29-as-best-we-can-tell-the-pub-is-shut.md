@@ -6,7 +6,7 @@ title: "As best we can tell, the pub is shut"
 I was alerted by a commenter that it's been more than a year, now, since this
 video dropped:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/83cEEyTuAMM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<center><iframe width="560" height="315" src="https://www.youtube.com/embed/83cEEyTuAMM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></center>
 
 COVID measures had already begun to be implemented; national borders shut, most
 schools already closed.  Watching this press conference, [a scene from The
