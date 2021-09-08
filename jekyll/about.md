@@ -17,8 +17,9 @@ contracting; lately I've done post-incident security analysis, and
 pre-acquisition due diligence whole codebase review.  Contact me at `ashe@`
 this domain if you'd like to discuss anything!
 
-I make an effort to represent my whole self online.  I'm trans, plural, poly,
-furry, asexual[^frankly], and committed to nuanced and careful discussion about identity.  
+I make an effort to represent my whole self online.  I'm trans, autistic,
+plural, poly, furry, asexual[^frankly], and committed to nuanced and careful
+discussion about identity.
 
 I don't really use social media any more, but you can catch me on the [Zig
 Discord](https://github.com/ziglang/zig/wiki/Community#discord) and
@@ -26,10 +27,9 @@ Discord](https://github.com/ziglang/zig/wiki/Community#discord) and
 
 My main interests at the moment include:
 
-* ARM and RISC-V architectures (see [Daintree](https://daintr.ee))
+* [DDR](https://kivikakk.ee/2021/08/16/ddr-the-second/)
 * [Zig](https://ziglang.org)
-* FPGA hardware development
-* Getting better at DDR again!
+* that's about all I can manage right now
 
 I also enjoy [motorcycling in the hills](/assets/kalorama.jpg), [beatmania
 IIDX](https://sp12.iidx.app/sheets/4791-2487/clear), and birds.
