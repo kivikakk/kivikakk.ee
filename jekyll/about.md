@@ -17,9 +17,9 @@ contracting; lately I've done post-incident security analysis, and
 pre-acquisition due diligence whole codebase review.  Contact me at `ashe@`
 this domain if you'd like to discuss anything!
 
-I make an effort to represent my whole self online.  I'm trans, autistic,
-plural, poly, furry, asexual[^frankly], and committed to nuanced and careful
-discussion about identity.
+<!-- awkward formatting because i really (don't) want certain line breaks at different breakpoints -->
+I'm trans, autistic, plural, poly, furry, asexual[^frankly],
+and am<nobr> </nobr>committed to nuanced and careful discussion about identity.  <nobr>I make</nobr> an effort to represent my whole self online.
 
 I don't really use social media any more, but you can catch me on the [Zig
 Discord](https://github.com/ziglang/zig/wiki/Community#discord) and
