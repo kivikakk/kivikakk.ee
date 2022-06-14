@@ -59,6 +59,7 @@ GEM
     listen (3.4.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
+    matrix (0.4.2)
     mercenary (0.4.0)
     multipart-post (2.1.1)
     octokit (4.20.0)
@@ -97,6 +98,7 @@ DEPENDENCIES
   jekyll-paginate
   jekyll-seo-tag
   jekyll-sitemap
+  matrix
   webrick
 
 BUNDLED WITH
