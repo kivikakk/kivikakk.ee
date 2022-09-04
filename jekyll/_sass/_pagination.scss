@@ -23,6 +23,10 @@
   }
 }
 
+span.pagination-item {
+  border: none;
+}
+
 // Only provide a hover state for linked pagination items
 a.pagination-item:hover {
   background-color: var(--border-color);

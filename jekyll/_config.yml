@@ -2,6 +2,7 @@
 title: kivikakk.ee
 url: https://kivikakk.ee
 paginate: 5
+paginate_path: "/posts/:num/"
 baseurl: ""
 permalink: pretty
 excerpt_separator: <!--more-->
@@ -41,8 +42,11 @@ version: 3.0.0
 
 # Navbar page list
 nav:
-  - title: "All posts"
-    url: /all
+  - title: Home
+    url: /
 
-  - title: About
-    url: /about
+  - title: "Posts"
+    url: "/posts"
+
+  - title: "Index"
+    url: /index
