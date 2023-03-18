@@ -12,7 +12,7 @@ Learn from my mistakes!
 ## If you try to do it in one pass, you will hurt yourself
 
 <a id="more"></a>I charged headlong into writing
-[dtb.zig](https://github.com/voorjaar/windicss/wiki/Introduction#what-is-windicss)
+[dtb.zig](https://github.com/kivikakk/dtb.zig)
 by starting at the top of the Devicetree Specification page on the "Flattened
 Devicetree (DTB)" Format" and reading down. It looked delightfully simple. Keep
 in mind, I still didn't know what I yet needed out of it, just that I probably
