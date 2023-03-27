@@ -7,7 +7,7 @@ title: Home
   {% for post in paginator.posts %}
   <article class="post">
     <div class="my-id">
-      <img src="/assets/lia-icon.png" width="64" height="64">
+      <img src="/assets/mia-icon.jpg" width="64" height="64">
     </div>
     <h1 class="post-title">
       <a href="{{ post.url | relative_url }}">
@@ -20,7 +20,7 @@ title: Home
     {{ post.excerpt }}
 
     {% if post.content.size > post.excerpt.size %}
-      <a href="{{ post.url | relative_url }}#more">Read more!</a>
+      <a href="{{ post.url | relative_url }}#more">Read more</a>
     {% endif %}
   </article>
   {% endfor %}
