@@ -15,7 +15,8 @@ layout: null
    <email>{{ site.author.email }}</email>
  </author>
 
- {% for post in site.posts %}
+ {% assign filtered_posts = site.posts | where: "upstream_url", nil %}
+ {% for post in filtered_posts %}
  <entry>
    <title>{{ post.title | xml_escape }}</title>
    <link href="{{ site.url }}{{ site.baseurl }}{{ post.url }}"/>
