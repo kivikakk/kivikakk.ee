@@ -7,8 +7,9 @@ title: About
 <img src="/assets/mia.png" title="Art by skpd__@Twitter">
 </div>
 
-Hi.
+Hiya!
 
+* [Fediverse](https://lottia.net/users/kivikakk)
 * [GitHub](https://github.com/kivikakk)
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
 * Out-of-date [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
