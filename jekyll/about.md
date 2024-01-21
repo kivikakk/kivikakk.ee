@@ -14,6 +14,6 @@ Hiya!
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
 * Out-of-date [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
 
-I can be reached at `ashe@` this domain.
+I can be reached at `amelia@` this domain.
 
 <div style="clear: both;"></div>
