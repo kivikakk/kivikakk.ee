@@ -12,7 +12,7 @@ Hiya!
 * [Fediverse](https://lottia.net/users/kivikakk)
 * [GitHub](https://github.com/kivikakk)
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
-* Out-of-date [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
+* Slightly underdone [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
 
 I can be reached at `amelia@` this domain.
 
