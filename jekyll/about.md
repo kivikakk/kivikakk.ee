@@ -10,7 +10,7 @@ title: About
 Hiya!
 
 * [Fediverse](https://lottia.net/users/kivikakk)
-* [GitHub](https://github.com/kivikakk)
+* [hrzn forge](https://hrzn.ee/kivikakk)
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
 * Slightly underdone [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
 
