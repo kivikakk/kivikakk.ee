@@ -4,4 +4,4 @@ title: "lottia notes"
 ---
 
 I've been writing notes on FPGA/digital design and Nix over at
-[*lottia notes*](https://lottia.net/notes).
+[*lottia notes*](https://kivikakk.ee/notes).
