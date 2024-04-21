@@ -47,5 +47,8 @@ nav:
   - title: "About"
     url: "/about"
 
+  - title: "Code"
+    url: "https://hrzn.ee/kivikakk"
+
   - title: "Index"
     url: /index
