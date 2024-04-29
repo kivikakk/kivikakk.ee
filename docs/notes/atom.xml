@@ -1,0 +1,1712 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://kivikakk.ee/notes/">
+  <id>https://kivikakk.ee/notes/</id>
+  <title>lottia notes</title>
+  <updated>2024-01-02T04:38:00Z</updated>
+  <link rel="alternate" href="https://kivikakk.ee/notes/" type="text/html"/>
+  <link rel="self" href="https://kivikakk.ee/notes/atom.xml" type="application/atom+xml"/>
+  <author>
+    <name>Amelia Cuss</name>
+    <uri>https://kivikakk.ee/notes</uri>
+  </author>
+  <entry>
+    <id>tag:kivikakk.ee,2024-01-02:/notes/0006-comrak-on-akkoma.html</id>
+    <title type="html">Comrak on Akkoma</title>
+    <published>2024-01-02T04:38:00Z</published>
+    <updated>2024-01-02T04:38:00Z</updated>
+    <link rel="alternate" href="https://kivikakk.ee/notes/0006-comrak-on-akkoma.html" type="text/html"/>
+    <content type="html">&lt;section id="top"&gt;
+&lt;p&gt;First up: I’ve never done more than toy with Elixir before, and never with Nix
+or Rust, so this “simply stuff Nix, Elixir and Rust into a magic hat” trick was
+guaranteed to be at least a little bit Fun™. And it was! :)&lt;/p&gt;
+&lt;p&gt;Stock Akkoma uses &lt;a href="https://github.com/pragdave/earmark"&gt;Earmark&lt;/a&gt;, which
+looks like a lovely library, but maybe a lil out of date and out of step with
+CommonMark/GFM. &lt;strong&gt;We deserve &lt;a href="https://hrzn.ee/kivikakk/comrak"&gt;Comrak&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Happily enough, a Google search revealed a Nathan Faucett had already done
+most of the hard work of using Comrak from Elixir in
+&lt;a href="https://gitlab.com/nathanfaucett/ex-markdown"&gt;&lt;code&gt;ex-markdown&lt;/code&gt;&lt;/a&gt;. Thank you! This never gets old.&lt;/p&gt;
+&lt;p&gt;Ported it for Comrak and &lt;a href="https://github.com/rusterlium/rustler"&gt;Rustler&lt;/a&gt;
+changes in the last 5 years, and then learned about the various ways to
+juggle Elixir and Mix releases/deps in Nix. &lt;a href="https://hrzn.ee/kivikakk/ex-markdown/compare/master...lottia"&gt;Several hundred lines of hack-ish
+later&lt;/a&gt; and
+&lt;code&gt;ex-markdown&lt;/code&gt; was now fit for purpose.&lt;/p&gt;
+&lt;p&gt;Special care was taken to ensure both &lt;code&gt;nix develop&lt;/code&gt;- and &lt;code&gt;nix build&lt;/code&gt;-based
+builds work — this one always wants to be able to quickly iterate in my checkout
+without waiting all day for non-incremental builds, but at the end a &lt;code&gt;nix build&lt;/code&gt;
+should:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;match the behaviour of a clean &lt;code&gt;nix develop --command bash -c "mix deps.get &amp;amp;&amp;amp; mix test"&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;always cleanly succeed; and,&lt;/li&gt;
+&lt;li&gt;run &lt;code&gt;mix test&lt;/code&gt; itself as a post-install check so we don’t get blindsided by
+differences in the dev shell/closure-built artefact only when later using it
+(i.e. in Akkoma).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This required some finesse: we want to build the native Rust dependency as
+usual when doing &lt;code&gt;nix build&lt;/code&gt;, which means doing the usual Cargo/Nix dance
+and compiling that artefact as its own derivation (and all its crate deps as
+their own, etc. etc.). On the other hand, in &lt;code&gt;nix develop&lt;/code&gt; we want the usual
+compile-on-demand to happen. Happily, Rustler is portable enough to support this
+workflow! (see the &lt;code&gt;MARKDOWN_NATIVE_SKIP_COMPILATION&lt;/code&gt; env var.)&lt;/p&gt;
+&lt;p&gt;One tricky thing is the fucken Mix dependencies. The &lt;code&gt;ex-markdown&lt;/code&gt; derivation
+itself needs to introduce its own Mix deps to &lt;code&gt;beamPackages.buildMix&lt;/code&gt; so it can
+actually build and test. But that’s no good when we’re building Akkoma — we want
+to use a release-wide resolved version of those dependencies, with all BEAM deps
+in the one closure and no overlap.&lt;/p&gt;
+&lt;p&gt;For now we hack it somewhat, and reproduce some of &lt;code&gt;ex-markdown&lt;/code&gt;’s derivation in
+our Akkoma fork — &lt;code&gt;beamPackages&lt;/code&gt; doesn’t have anything like &lt;code&gt;overrideBeamAttrs&lt;/code&gt;
+or &lt;code&gt;overrideMixAttrs&lt;/code&gt; at the moment.
+&lt;a href="https://hrzn.ee/kivikakk/akkoma/compare/v3.10.4...lottia"&gt;There’s a fair bit more Nix&lt;/a&gt;
+involved therein.&lt;/p&gt;
+&lt;p&gt;We started with upstream Nixpkgs’ Akkoma package definition (again, copying the
+original as a base due to lack of override), add our &lt;code&gt;:markdown&lt;/code&gt; package to the
+&lt;code&gt;mixNixDeps&lt;/code&gt; — we pull the source, native package and toolchain deps through the
+&lt;code&gt;ex-markdown&lt;/code&gt; flake :)! —, adjust the call-sites, and then as a cherry on top,
+expose a NixOS module that sets &lt;code&gt;config.services.akkoma.package&lt;/code&gt; to the package
+exposed. Using the new Akkoma in my personal config is as simple as referring
+the module.&lt;/p&gt;
+&lt;p&gt;And there you have it!&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="future-work"&gt;
+&lt;h2&gt;Future work &lt;a href="#future-work" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;ex-markdown&lt;/code&gt; only used a native call for parsing the input; the rendering is
+done in Elixir. Let’s add the missing NIF for rendering too!&lt;/li&gt;
+&lt;li&gt;Working out a nicer way to share the &lt;code&gt;ex-markdown&lt;/code&gt; derivation for use in
+downstream projects’ &lt;code&gt;mixNixDeps&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Working out a nicer way to override some properties of Nixpkgs’ Akkoma
+derivation.&lt;/li&gt;
+&lt;li&gt;Unify version numbers and revisions.&lt;/li&gt;
+&lt;li&gt;I’ve just noticed below that Comrak’s (GFM-compliant) autolink feature breaks
+remote user refs by turning them into mailto’s! Oops.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/section&gt;
+&lt;section id="reflections"&gt;
+&lt;h2&gt;Reflections &lt;a href="#reflections" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Having never really touched Elixir much, this was a reasonably intimidating
+circus of interdependent parts to dive right into. It was super fun and — as
+usual — I credit Nix with making this &lt;em&gt;at all&lt;/em&gt; possible, and more importantly
+&lt;em&gt;worthwhile&lt;/em&gt;. The fact that I don’t have to worry about accumulating platform
+tools (or getting them installed on the target server etc.) is only a small part
+of it.&lt;/p&gt;
+&lt;p&gt;I did indeed spend quite a while fucking around with Making All This Shit Work
+With Nix, but I’d probably have spent as long or longer if I was just doing
+this on some pleb distro because of build artefacts left over from successive
+attempts — and of course, most of the work would be rendered null next time I
+had to set up a new server! The amount of discovery (and number of dead ends) I
+got to rebase into concrete learnings is &lt;em&gt;incredible&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;(I once again express my thanks to those who got me here — especially
+&lt;a href="https://pony.social/@cadey"&gt;@cadey@pony.social&lt;/a&gt; for putting the idea in my head
+years ago, and my ex-qpf for using Nix in the year of our lord 2023, which was a
+strong enough signal to finally Just Do It.)&lt;/p&gt;
+&lt;/section&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:kivikakk.ee,2023-09-17:/notes/0005-jambalam.html</id>
+    <title type="html">Jambalam</title>
+    <published>2023-09-17T22:12:00Z</published>
+    <updated>2023-09-17T22:12:00Z</updated>
+    <link rel="alternate" href="https://kivikakk.ee/notes/0005-jambalam.html" type="text/html"/>
+    <content type="html">&lt;p&gt;&lt;a href="https://www.youtube.com/watch?v=VeAJ9U5nbVQ"&gt;Have it your way.&lt;/a&gt; (Content note for just about
+everything.)&lt;/p&gt;
+&lt;p&gt;Further to fish fun in &lt;a href="https://kivikakk.ee/notes/0003-nix-revisited.html"&gt;Nix refisited&lt;/a&gt;, today I wanted my &lt;code&gt;git log&lt;/code&gt; to work a little different.&lt;/p&gt;
+&lt;p&gt;I have &lt;code&gt;l&lt;/code&gt; as an alias for: (I’m going to add a bunch of newlines)&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-shell"&gt;git log
+  &lt;span class="nt"&gt;--show-notes&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;'*'&lt;/span&gt;
+  &lt;span class="nt"&gt;--abbrev-commit&lt;/span&gt;
+  &lt;span class="nt"&gt;--pretty&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;format:&lt;span class="s1"&gt;'
+    %Cred%h
+    %Cgreen(%aD)%Creset
+    -%C(bold red)%d%Creset
+    %s
+    %C(bold blue)&amp;lt;%an&amp;gt;%Creset
+  '&lt;/span&gt;
+  &lt;span class="nt"&gt;--graph&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The output looks like this:&lt;/p&gt;
+&lt;p&gt;&lt;img src="assets/gitlog1.png" alt=" A console where “l” has been entered. A commit per line is listed. "&gt;&lt;/p&gt;
+&lt;p&gt;I’m focussing right at the end here: &lt;code&gt;&amp;lt;%an&amp;gt;&lt;/code&gt; is what puts &lt;code&gt;&amp;lt;Charlotte&amp;gt;&lt;/code&gt; at the end.
+&lt;code&gt;an&lt;/code&gt; stands for “author name”; you can also do &lt;code&gt;ae&lt;/code&gt; for “author email”, and &lt;code&gt;cn&lt;/code&gt; and &lt;code&gt;ce&lt;/code&gt;
+for committer name and email respectively.&lt;/p&gt;
+&lt;p&gt;Wouldn’t it be nice to see the author &lt;em&gt;and&lt;/em&gt; committer here? Of course, if I just change it to
+something like &lt;code&gt;&amp;lt;%an&amp;gt; &amp;lt;%cn&amp;gt;&lt;/code&gt;, we get this: (detacnurt for clarity)&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;…0) - (HEAD -&amp;gt; main, origin/main) 0004-happy-birthday: expand. &amp;lt;Charlotte&amp;gt; &amp;lt;Charlotte&amp;gt;
+…0) - 0004-happy-birthday: publish. &amp;lt;Charlotte&amp;gt; &amp;lt;Charlotte&amp;gt;
+…0) - TODOne. &amp;lt;Charlotte&amp;gt; &amp;lt;Charlotte&amp;gt;
+…0) - Rules: relativize paths. &amp;lt;Charlotte&amp;gt; &amp;lt;Charlotte&amp;gt;
+…) - TODO &amp;lt;Charlotte&amp;gt; &amp;lt;Charlotte&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In the majority of cases, author and committer are the same. GitHub does a neat thing where it
+shows the committer (or &lt;code&gt;Co-authored-by:&lt;/code&gt;), but &lt;em&gt;only&lt;/em&gt; if they’re different:&lt;/p&gt;
+&lt;p&gt;&lt;img src="assets/githublog.png" alt=" An excerpt of GitHub’s commit view showing one commit listed as “peff authored and gitster committed”, and another as just “gitster committed” "&gt;&lt;/p&gt;
+&lt;p&gt;Unfortunately(?), &lt;a href="https://git-scm.com/docs/git-log#_pretty_formats"&gt;git-log’s pretty formats&lt;/a&gt; don’t support “show this field only if it’s different
+to that one”. Maybe that’s a good thing. We’re here to break good things.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://hrzn.ee/kivikakk/git/commit/92a62a03692dd1792d5a1c7c0650d5794d25e16f"&gt;Here’s a patch to &lt;code&gt;git&lt;/code&gt; that adds &lt;code&gt;%cm&lt;/code&gt; and &lt;code&gt;%cf&lt;/code&gt;&lt;/a&gt;. The naming semantics are “cute”:
+&lt;code&gt;m&lt;/code&gt; and &lt;code&gt;f&lt;/code&gt; are adjacent to &lt;code&gt;n&lt;/code&gt; and &lt;code&gt;e&lt;/code&gt;. The core addition to &lt;code&gt;format_person_part&lt;/code&gt; (grumble) is as
+follows:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-c"&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;part&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="sc"&gt;'m'&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="n"&gt;part&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="sc"&gt;'f'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;	 &lt;span class="cm"&gt;/* committer name or email if committer != author */&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ca_msg&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="nb"&gt;NULL&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;split_ident_line&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;ca_s&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ca_msg&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ca_len&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;ca_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ca_s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name_begin&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;ca_namelen&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ca_s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name_end&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;ca_s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name_begin&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;ca_mail&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ca_s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mail_begin&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;ca_maillen&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ca_s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mail_end&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;ca_s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mail_begin&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;namelen&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;ca_namelen&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;
+        &lt;span class="n"&gt;maillen&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;ca_maillen&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;
+        &lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;strncmp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ca_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;namelen&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;
+        &lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;strncmp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mail&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ca_mail&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;maillen&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+      &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;placeholder_len&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The outer conditional is hit for all &lt;code&gt;%a&lt;/code&gt; and &lt;code&gt;%c&lt;/code&gt; and looks for our &lt;code&gt;m&lt;/code&gt; and &lt;code&gt;f&lt;/code&gt; specifiers; the
+middle conditional ensures we’re in &lt;code&gt;%c&lt;/code&gt; and that the Author (!) line can be parsed into name and
+mail address. Finally, we check that the Committer name and mail match the Author ones exactly. If
+so, we return immediately without appending anything to the output buffer. (We shortly thereafter
+treat &lt;code&gt;m&lt;/code&gt; as identical to &lt;code&gt;n&lt;/code&gt; and &lt;code&gt;f&lt;/code&gt; as to &lt;code&gt;e&lt;/code&gt;, in the case where they’re not matching.)&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;git show &amp;gt; pretty.c.patch&lt;/code&gt; and &lt;code&gt;pkgs.git.overrideAttrs { patches = [./pretty.c.patch]; }&lt;/code&gt; gets you
+the goods. My alias now has &lt;code&gt;&amp;lt;%an&amp;gt;% cm&lt;/code&gt;, meaning it’ll show the committer name (with a space) after
+the author name in gtlt, but only if it’s different. Here’s an example of that on &lt;a href="https://github.com/amaranth-lang/amaranth"&gt;Amaranth&lt;/a&gt;’s
+repository:&lt;/p&gt;
+&lt;p&gt;&lt;img src="assets/gitlog2.png" alt=" A console where “l” been entered; there’s a commit per line, but the first one ends in a name in angle brackets, followed by a different name. The following commits only have one name. "&gt;&lt;/p&gt;
+&lt;p&gt;I &lt;em&gt;really&lt;/em&gt; like this. In a tangible sense, my operating systems are becoming &lt;em&gt;mine&lt;/em&gt;.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:kivikakk.ee,2023-08-22:/notes/0004-happy-birthday.html</id>
+    <title type="html">Happy birthday!</title>
+    <published>2023-08-22T05:24:00Z</published>
+    <updated>2023-08-24T06:13:00Z</updated>
+    <link rel="alternate" href="https://kivikakk.ee/notes/0004-happy-birthday.html" type="text/html"/>
+    <content type="html">&lt;section id="opening"&gt;
+&lt;p&gt;I’m writing a little hardware I²C clock stretcher (&lt;a href="https://hrzn.ee/kivikakk/i2c_obs"&gt;I²C, oh! Big stretch&lt;/a&gt;) to
+help me make my I²C controller implementation actually support it.&lt;/p&gt;
+&lt;p&gt;These are some moments I’ve had while doing so.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="oobe"&gt;
+&lt;h2&gt;Out-of-band experience &lt;a href="#oobe" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;I added a &lt;a href="https://hrzn.ee/kivikakk/i2c_obs/commit/1078a55c9f5bd63fae9707586393535ed7afcd07#diff-fbbd4dd0ae5cec5958577b18349c32c4e93ed8df0846aacdfe916267b503e6f4"&gt;tiny UART module&lt;/a&gt; to help me debug it. First I emitted a &lt;code&gt;&amp;lt;&lt;/code&gt;
+character when starting a big stretch, and a &lt;code&gt;&amp;gt;&lt;/code&gt; character once we’re all
+relaxed.&lt;/p&gt;
+&lt;p&gt;I was going to then write the number of cycles counted during the SCL tLOW
+period in decimal but eventually decided, Who Really Can Be Bothered, and just
+shoved it out onto the UART, LSB first.&lt;/p&gt;
+&lt;p&gt;The initial test went great:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=&gt;"&gt;&lt;span class="gp"&gt;@vyx ~&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;tio /dev/ttyUSB1 &lt;span class="nt"&gt;-b9600&lt;/span&gt;
+&lt;span class="go"&gt;[15:05:11.940] tio v2.5
+[15:05:11.940] Press ctrl-t q to quit
+[15:05:11.941] Connected
+[15:10:05.065] Switched to hexadecimal mode
+3c 0f 3e 3c 3e 3c 3e 3c 3e 3c 0f 3e&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;3c&lt;/code&gt; and &lt;code&gt;3e&lt;/code&gt; are &lt;code&gt;&amp;lt;&lt;/code&gt; and &lt;code&gt;&amp;gt;&lt;/code&gt; respectively. You can see I had some fun while
+realizing that I need to actually take steps to restart the FSM — disabling it
+isn’t enough.&lt;/p&gt;
+&lt;p&gt;The I²C bus is running at 400kHz, meaning we expect the SCL low period to last
+1/800,000th of a second.&lt;/p&gt;
+&lt;p&gt;The iCEBreaker the sleepy kitty is running on is running at 12MHz. At that
+speed, 1/800,000th of a second passes in 12,000,000/800,000&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-maths" id="fnref-maths" data-footnote-ref=""&gt;1&lt;/a&gt;&lt;/sup&gt; = 15 cycles.&lt;/p&gt;
+&lt;p&gt;And we were seeing &lt;code&gt;0f&lt;/code&gt; in the output, 15! Perfect.&lt;/p&gt;
+&lt;p&gt;I recompiled the controller to run at 100kHz and continued the test.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="go"&gt;3c 3c 3e 3c 3c 3e 3c 3c 3e 3c 3c 3e 3c 3c 3e 3c 3c 3e&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;??? I thought I made a logic error and we were somehow resetting back to the
+initial state without finishing measurement.&lt;/p&gt;
+&lt;p&gt;And then I said, “don’t fucking tell me,” because it’s not too hard to add &lt;code&gt;0f&lt;/code&gt;
+to itself repeatedly in your head and so &lt;code&gt;0f&lt;/code&gt;, &lt;code&gt;1e&lt;/code&gt;, &lt;code&gt;2d&lt;/code&gt;, &lt;code&gt;3c&lt;/code&gt;. Happy birthday!&lt;/p&gt;
+&lt;p&gt;At this point I promptly changed the start/stop characters to &lt;code&gt;ff&lt;/code&gt; and &lt;code&gt;fe&lt;/code&gt;, and
+then — detecting that I was just setting up the next, much larger footgun for
+myself — decided to dump the count one &lt;em&gt;nibble&lt;/em&gt; at a time and thus render any
+byte with a non-zero high nibble officially out-of-band, and &lt;a href="https://hrzn.ee/kivikakk/i2c_obs/commit/da9b89b43319114f3bb0fd43511ae934b10b7fac"&gt;thus&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="go"&gt;ff 0c 03 fe&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/section&gt;
+&lt;section id="measurement"&gt;
+&lt;h2&gt;Modes of measurement &lt;a href="#measurement" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;The I²C controller I’m testing with/for outputs its clock at a 50% duty
+cycle exactly&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-fv" id="fnref-fv" data-footnote-ref=""&gt;2&lt;/a&gt;&lt;/sup&gt;. I probably even verified that with a logic analyzer or
+oscilloscope at some stage! Point is, my initial idea was to train on the SCL
+tLOW period, and then start holding it low for ~twice that period as of the next
+low, and thus stretch the clock (a LOT).&lt;/p&gt;
+&lt;p&gt;When you’re a noob like me, you may encounter this:&lt;/p&gt;
+&lt;p&gt;(image link no longer valid – alt text was: a few breadboards with various
+boards on them, an OLED, a few LEDs, an oscilloscope, way too many cables, a
+mess)&lt;/p&gt;
+&lt;p&gt;Here we have the bus only getting pulled up halfway. This is what it looks like
+when someone is trying to ground your bus &lt;em&gt;at the same time&lt;/em&gt; as someone trying
+to put high out on it. An I²C bus is designed to be &lt;em&gt;pulled&lt;/em&gt; high so that anyone
+can pull it low, but we’re seeing it &lt;em&gt;driven&lt;/em&gt; high.&lt;/p&gt;
+&lt;p&gt;The controller &lt;a href="https://hrzn.ee/kivikakk/sh1107/commit/bb7388b9f1a3635711337a304bc17e3c682c8508"&gt;needed&lt;/a&gt; to turn SCL’s output-enable off, to let it get pulled up
+high on its own, and then only to switch the output-enable on when it needs to
+be driven low. This lets anyone else on the bus keep SCL low, thus stretching
+the clock.&lt;/p&gt;
+&lt;p&gt;This worked nicely when it comes to letting the bus stretch, but today I was
+trying to get the measurement to come out right — I wanted to have the little
+debugging app that talks via UART reporting the correct I²C bus speed — and
+noticed that, actually, we’re getting it wrong &lt;em&gt;not only because I’m failing to
+count correctly&lt;/em&gt;, but because the waveform &lt;em&gt;doesn’t&lt;/em&gt; have a 50% duty cycle!&lt;/p&gt;
+&lt;p&gt;My poor baby oscilloscope can’t actually measure fast enough to see it, but
+&lt;em&gt;turns out&lt;/em&gt; letting a pull-up resistor bring a bus high takes a little bit
+longer than driving it high. As a result, the tail end of the tLOW period is
+eating into the start of tHIGH as it shakily makes its way back up to full
+voltage. I absolutely need a way to see this, so I need a better scope I guess.&lt;/p&gt;
+&lt;p&gt;Anyway, I’ll also measure from rising edge to rising edge (and falling edge to
+falling edge), and that should give me some more insight. Logically, I expect
+the falling-to-falling to be very consistent, because that transition is driven,
+whereas the rising-to-rising might vary depending on when the signal gets high
+enough to be considered “high” each cycle.&lt;/p&gt;
+&lt;p&gt;I just need to not accidentally reinvent the &lt;a href="https://www.crowdsupply.com/1bitsquared/glasgow"&gt;Glasgow Interface Explorer&lt;/a&gt; while
+I’m here.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section class="footnotes" data-footnotes="" id="footnotes"&gt;&lt;h2&gt;Footnotes &lt;a href="#footnotes" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li id="fn-maths"&gt;
+&lt;p&gt;1/(12MHz/800kHz) = 1/((1/12,000,000)/(1/800,000)) = 12,000,000/800,000. &lt;a href="#fnref-maths" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="1" aria-label="Back to reference 1"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn-fv"&gt;
+&lt;p&gt;Hey, that sounds like something I could really formally verify.
+I have &lt;a href="https://hrzn.ee/kivikakk/sh1107/blob/7b05e685eb6ee53b9f069410c9f12005cd580d99/sh1107/formal/__init__.py#L133-L155"&gt;the start&lt;/a&gt; of a verification setup, might as well use it. &lt;a href="#fnref-fv" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="2" aria-label="Back to reference 2"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:kivikakk.ee,2023-07-14:/notes/0003-nix-revisited.html</id>
+    <title type="html">Nix revisited</title>
+    <published>2023-07-14T16:42:00Z</published>
+    <updated>2023-07-14T16:42:00Z</updated>
+    <link rel="alternate" href="https://kivikakk.ee/notes/0003-nix-revisited.html" type="text/html"/>
+    <content type="html">&lt;p&gt;I realized I was in error in not using &lt;a href="https://nixos.org/"&gt;Nix&lt;/a&gt;, and have been addressing that.
+(The primary artifact so far that is public is &lt;a href="https://hrzn.ee/kivikakk/hdx"&gt;&lt;code&gt;hdx&lt;/code&gt;&lt;/a&gt;, a response to
+&lt;a href="https://kivikakk.ee/notes/0001-hdl-toolchain-source.html"&gt;Installing an HDL toolchain from source&lt;/a&gt;.)  I have some knowledge of it from
+previous experiments.  Some observations:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;You must thread the needle between “properly sitting down and reading the
+language guide” and “actively replacing previously-statefully-configured
+parts of your system and build environments”.  Without the former none of the
+idioms make sense; without the latter you won’t remember anything from the
+former.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;If you’re fighting Nix, you’re probably missing a good opportunity to use it
+instead.  Here’s an example:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;As a heavy Git user, I have a &lt;em&gt;lot&lt;/em&gt; of terse aliases which are part of my
+muscle memory.&lt;/li&gt;
+&lt;li&gt;It’s unacceptable to me to type &lt;code&gt;git &lt;/code&gt; or even &lt;code&gt;g &lt;/code&gt; before those
+aliases, as even the latter represents a 200% additional load on
+commands I use extremely frequently.&lt;/li&gt;
+&lt;li&gt;It’s preferable to me to use Git’s aliases over shell aliases to do the
+actual expansion, particularly as I use some, uh, “Git shell aliases”?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;I used to use a method that involved piping the output of this Ruby script
+into &lt;a href="https://fishshell.com/docs/current/cmds/source.html"&gt;&lt;code&gt;source&lt;/code&gt;&lt;/a&gt; in my shell rc:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-ruby"&gt;&lt;span class="c1"&gt;#!/usr/bin/env ruby&lt;/span&gt;
+
+&lt;span class="n"&gt;alias_lines&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sb"&gt;`git config --global --list`&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;lines&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;grep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sr"&gt;/^alias\./&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;alias_lines&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;each&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+  &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="o"&gt;=~&lt;/span&gt; &lt;span class="sr"&gt;/\Aalias\.([^=]+)=(.*)\n\z/&lt;/span&gt;
+  &lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;exp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="vg"&gt;$1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="vg"&gt;$2&lt;/span&gt;
+
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;exp&lt;/span&gt; &lt;span class="o"&gt;=~&lt;/span&gt; &lt;span class="sr"&gt;/\A!/&lt;/span&gt;
+    &lt;span class="nb"&gt;puts&lt;/span&gt; &lt;span class="s2"&gt;"alias &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;=&lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt;git &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt;  # &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;exp&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="k"&gt;else&lt;/span&gt;
+    &lt;span class="nb"&gt;puts&lt;/span&gt; &lt;span class="s2"&gt;"alias &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;=&lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt;git &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;exp&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;(I think the conditional was trying to make up for lack of completions
+&lt;em&gt;through&lt;/em&gt; Git aliases, which isn’t necessary these days.)&lt;/p&gt;
+&lt;p&gt;I almost took that with me.  Can you believe it?  I now have a
+&lt;code&gt;gitAliases.nix&lt;/code&gt; that looks like the following&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-sense" id="fnref-sense" data-footnote-ref=""&gt;1&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-nix"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nv"&gt;co&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"checkout"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nv"&gt;cb&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"checkout -b"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nv"&gt;pc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"checkout -p"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+  &lt;span class="nv"&gt;s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"status -sb"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+  &lt;span class="nv"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"branch"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nv"&gt;ba&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"branch -a"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nv"&gt;bd&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"branch -d"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="c"&gt;# ...&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then, in my Home Manager configuration, effectively the following:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-nix"&gt;&lt;span class="kd"&gt;let&lt;/span&gt;
+  &lt;span class="nv"&gt;gitAliases&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="sx"&gt;./gitAliases.nix&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;in&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nv"&gt;home-manager&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;users&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;charlotte&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nv"&gt;programs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;fish&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="nv"&gt;shellAliases&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="c"&gt;# ...&lt;/span&gt;
+      &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="kr"&gt;builtins&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;mapAttrs&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nv"&gt;_v&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"git &lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;name&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nv"&gt;gitAliases&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;};&lt;/span&gt;
+
+    &lt;span class="nv"&gt;programs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;git&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="nv"&gt;aliases&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nv"&gt;gitAliases&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;};&lt;/span&gt;
+  &lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This feels delicious.  I have just noticed I’m not getting &lt;code&gt;--wraps&lt;/code&gt; set when
+defining the function, and so completions are not provided.  It appears
+slightly unpredictable on fish’s side whether &lt;code&gt;alias x y&lt;/code&gt; will use &lt;code&gt;-w y&lt;/code&gt;,
+possibly to do with when in init it’s happening and whether such a function
+has been &lt;a href="https://github.com/fish-shell/fish-shell/issues/8395#issuecomment-957135261"&gt;defined before&lt;/a&gt;.  Oh, &lt;a href="https://github.com/fish-shell/fish-shell/blob/861da91bf1029c1442f154f6c369b1b6030b29f3/share/functions/alias.fish#L61-L68"&gt;here we go&lt;/a&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Time to hack that apart.  It’s almost disgusting how easy Nix makes
+patching packages I use and then having that just appear on all my
+systems!  Fuck!  I’m sure there’s a less nuclear option but I just &lt;em&gt;wanna&lt;/em&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Edit: this is the stuff &lt;a href="https://web.archive.org/web/20231007165916/https://aperture.ink/system/media_attachments/files/110/713/786/757/975/142/original/f04db54777ab7a44.png"&gt;dreams are made of&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;As with anything, keep the stdlib source open in a window/tab/pane.  Here
+this means &lt;code&gt;/nix/var/nix/profiles/per-user/root/channels/nixpkgs/&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Builds may &lt;em&gt;not&lt;/em&gt; generally be reproducible between NixOS and Nix on a
+different platform.  &lt;a href="https://hrzn.ee/kivikakk/hdx/commit/b3af8a0bc323931b4866475d72352ea2f00605c1"&gt;Ahem&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I think this implies building &lt;a href="https://github.com/NixOS/nixpkgs/blob/23.05/pkgs/development/embedded/fpga/icestorm/default.nix"&gt;Nixpkgs 23.05’s
+icestorm&lt;/a&gt; on macOS today would fail.&lt;/p&gt;
+&lt;p&gt;Let’s verify.  We want to use &lt;code&gt;nix-build --option substitute false&lt;/code&gt; to
+disable binary substitution, but first invoke the &lt;code&gt;nix-shell&lt;/code&gt; once for the
+derivation so we don’t build all its dependencies from source too:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c"&gt;# After a lot of fucking around with nix-store --gc:&lt;/span&gt;
+&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;nix-shell &lt;span class="s1"&gt;'&amp;lt;nixpkgs&amp;gt;'&lt;/span&gt; &lt;span class="nt"&gt;-A&lt;/span&gt; icestorm
+&lt;span class="go"&gt;these 16 paths will be fetched (2.62 MiB download, 16.98 MiB unpacked):
+  /nix/store/sm3f0jqk0y1bmwpprjy15icb7bw9kfyp-apple-framework-CoreFoundation-11.0.0
+  /nix/store/iqh2hzmrnj9rvw6ahdzzsp9cqzf3ji6w-cctools-binutils-darwin-wrapper-973.0.1
+
+[ ... lots of output ... ]
+
+copying path '/nix/store/7v4rbxd8i0hsk2hgy8jnd4qn9vk89a86-clang-wrapper-11.1.0' from 'https://cache.nixos.org'...
+copying path '/nix/store/mas4ifv1v6llnqkyxq5w235x0hdq5yq3-stdenv-darwin' from 'https://cache.nixos.org'...
+
+&lt;/span&gt;&lt;span class="gp"&gt;[nix-shell:~]$&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;exit&lt;/span&gt;
+&lt;span class="go"&gt;exit
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;nix-build &lt;span class="nt"&gt;--option&lt;/span&gt; substitute &lt;span class="nb"&gt;false&lt;/span&gt; &lt;span class="s1"&gt;'&amp;lt;nixpkgs&amp;gt;'&lt;/span&gt; &lt;span class="nt"&gt;-A&lt;/span&gt; icestorm
+&lt;span class="go"&gt;this derivation will be built:
+  /nix/store/iqw5iqqkm71vx5dl4s6xzpm5ymxjddyq-icestorm-2020.12.04.drv
+building '/nix/store/iqw5iqqkm71vx5dl4s6xzpm5ymxjddyq-icestorm-2020.12.04.drv'...
+
+[ ... lots of output ... ]
+
+patching script interpreter paths in /nix/store/jxfzqadgp6ygd0dfdi7s0jx0nwbd3kxh-icestorm-2020.12.04
+stripping (with command strip and flags -S) in  /nix/store/jxfzqadgp6ygd0dfdi7s0jx0nwbd3kxh-icestorm-2020.12.04/bin
+/nix/store/jxfzqadgp6ygd0dfdi7s0jx0nwbd3kxh-icestorm-2020.12.04
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It works!  Joke’s on me: the revision used in Nixpkgs is about 8 commits
+before the macOS fix that now needs to be worked around.&lt;/p&gt;
+&lt;p&gt;Let’s verify this by building the derivation with the revision overridden.
+The name is also overridden, to avoid the package name + version being used:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-nix"&gt;&lt;span class="kn"&gt;with&lt;/span&gt; &lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nv"&gt;nixpkgs&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{};&lt;/span&gt;
+&lt;span class="nv"&gt;icestorm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;overrideAttrs&lt;/span&gt; &lt;span class="p"&gt;({&lt;/span&gt; &lt;span class="nv"&gt;src&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;...&lt;/span&gt; &lt;span class="p"&gt;}:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nv"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"icestorm"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nv"&gt;src&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nv"&gt;src&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;override&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nv"&gt;rev&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"d20a5e9001f46262bf0cef220f1a6943946e421d"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="nv"&gt;sha256&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nv"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;fakeSha256&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;})&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We do the little dance to get the fixed-output derivation hash suitable for the
+site it’s used:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=$"&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;nix-build &lt;span class="nt"&gt;-E&lt;/span&gt; &lt;span class="s1"&gt;'with import &amp;lt;nixpkgs&amp;gt; {}; icestorm.overrideAttrs ({ src, ... }: { name = "icestorm"; src = src.override { rev = "d20a5e9001f46262bf0cef220f1a6943946e421d"; sha256 = lib.fakeSha256; }; })'&lt;/span&gt;
+&lt;span class="go"&gt;these 2 derivations will be built:
+  /nix/store/wpcxl7fz89sk1b45xy2m36cv3gljgzmp-source.drv
+  /nix/store/gjs2rm2la5as2yh139yaqcz0q5hjgsc7-icestorm.drv
+building '/nix/store/wpcxl7fz89sk1b45xy2m36cv3gljgzmp-source.drv'...
+
+trying https://github.com/YosysHQ/icestorm/archive/d20a5e9001f46262bf0cef220f1a6943946e421d.tar.gz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100  926k    0  926k    0     0  1195k      0 --:--:-- --:--:-- --:--:-- 5570k
+unpacking source archive /private/tmp/nix-build-source.drv-0/d20a5e9001f46262bf0cef220f1a6943946e421d.tar.gz
+error: hash mismatch in fixed-output derivation '/nix/store/wpcxl7fz89sk1b45xy2m36cv3gljgzmp-source.drv':
+         specified: sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+            got:    sha256-dEBmxO2+Rf/UVyxDlDdJGFAeI4cu1wTCbneo5I4gFG0=
+error: 1 dependencies of derivation '/nix/store/gjs2rm2la5as2yh139yaqcz0q5hjgsc7-icestorm.drv' failed to build
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;nix-build &lt;span class="nt"&gt;-E&lt;/span&gt; &lt;span class="s1"&gt;'with import &amp;lt;nixpkgs&amp;gt; {}; icestorm.overrideAttrs ({ src, ... }: { name = "icestorm"; src = src.override { rev = "d20a5e9001f46262bf0cef220f1a6943946e421d"; sha256 = "dEBmxO2+Rf/UVyxDlDdJGFAeI4cu1wTCbneo5I4gFG0="; }; })'&lt;/span&gt;
+&lt;span class="go"&gt;this derivation will be built:
+  /nix/store/9klhbj6biiqn9696zzvyy8cmyjfjaw2d-icestorm.drv
+building '/nix/store/9klhbj6biiqn9696zzvyy8cmyjfjaw2d-icestorm.drv'...
+
+[ ... lots of output ... ]
+
+       &amp;gt; cp icebox_vlog.py    /nix/store/1rdvdwvz44kkhirbvpn0yx2njwalrbf2-icestorm/bin/icebox_vlog
+       &amp;gt; cp icebox_stat.py    /nix/store/1rdvdwvz44kkhirbvpn0yx2njwalrbf2-icestorm/bin/icebox_stat
+       &amp;gt; sed -i '' 's+import iceboxdb+import iceboxdb as iceboxdb+g' /nix/store/1rdvdwvz44kkhirbvpn0yx2njwalrbf2-icestorm/bin/icebox.py
+       &amp;gt; sed: can't read s+import iceboxdb+import iceboxdb as iceboxdb+g: No such file or directory
+       &amp;gt; make[1]: *** [Makefile:65: install] Error 2
+       &amp;gt; make[1]: Leaving directory '/private/tmp/nix-build-icestorm.drv-0/source/icebox'
+       &amp;gt; make: *** [Makefile:13: install] Error 2
+       For full logs, run 'nix-store -l /nix/store/9klhbj6biiqn9696zzvyy8cmyjfjaw2d-icestorm.drv'.
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Sure enough, it does fail.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Nix feels very appropriate for people like me, whose thought processes or
+short-term memory may be disturbed without warning, thanks to the nature of
+work-in-progress state with declarative systems.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;By which I mean; for the most part, recovering the idea I’m halfway through
+an attempt of&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-int" id="fnref-int" data-footnote-ref=""&gt;2&lt;/a&gt;&lt;/sup&gt; is more “image load” than “procedural init”.  It
+doesn’t require parsing shell history or terminal scrollback in order to
+learn the meaning of the current state of my system—99% of the context is
+in a file.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;I’m avoiding &lt;code&gt;nix-env&lt;/code&gt; and flakes.  I don’t like the look of workflows that
+involve either.  &lt;a href="https://xeiaso.net/blog/nix-flakes-1-2022-02-21"&gt;Xe describes&lt;/a&gt; flakes as being suitable for use cases where
+you might use Niv or Lorri.  Niv and Lorri also appear to be tools for
+workflows I don’t like the look of.  Lorri refers to “fast direnv integration
+for robust CLI and editor integration”, and for whatever reason, that’s a
+slightly repellent notion to me at this stage.&lt;/p&gt;
+&lt;p&gt;I expect my opinion on flakes will change as I continue.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Did I mention builds may not be reproducible?&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=$"&gt;&lt;span class="go"&gt;-- Build files have been written to: /tmp/nix-build-nextpnr.drv-1/nextpnr-54b2045/build
+building
+build flags: -j10 SHELL=/nix/store/mxvgjwzdvrl81plvgqnzbrqb14ccnji6-bash-5.2-p15/bin/bash
+[  0%] Building CXX object bba/CMakeFiles/bbasm.dir/main.cc.o
+[  1%] Generating chipdb/chipdb-25k.bba
+/nix/store/mxvgjwzdvrl81plvgqnzbrqb14ccnji6-bash-5.2-p15/bin/bash: line 1: 54809 Segmentation fault: 11  /nix/store/zdd58zb8y7bm15jm0985fdjzy8wrmaci-python3-3.11.4/bin/python3.11 /tmp/nix-build-nextpnr.drv-1/nextpnr-54b2045/ecp5/trellis_import.py -L /nix/store/z3mpz8mqd858vbx849zqyh1mdv64l3vd-trellis/lib/trellis -L /nix/store/z3mpz8mqd858vbx849zqyh1mdv64l3vd-trellis/share/trellis/util/common -L /nix/store/z3mpz8mqd858vbx849zqyh1mdv64l3vd-trellis/share/trellis/timing/util -p /tmp/nix-build-nextpnr.drv-1/nextpnr-54b2045/ecp5/constids.inc -g /tmp/nix-build-nextpnr.drv-1/nextpnr-54b2045/ecp5/gfx.h 25k &amp;gt; chipdb/chipdb-25k.bba.new
+make[2]: *** [ecp5/CMakeFiles/chipdb-ecp5-bbas.dir/build.make:77: ecp5/chipdb/chipdb-25k.bba] Error 139
+make[1]: *** [CMakeFiles/Makefile2:359: ecp5/CMakeFiles/chipdb-ecp5-bbas.dir/all] Error 2
+make[1]: *** Waiting for unfinished jobs....
+[  2%] Linking CXX executable bbasm
+[  2%] Built target bbasm
+make: *** [Makefile:136: all] Error 2
+error: boost::bad_format_string: format-string is ill-formed
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c"&gt;# ...&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;(There’s a segmentation fault in there :)))&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;section class="footnotes" data-footnotes="" id="footnotes"&gt;&lt;h2&gt;Footnotes &lt;a href="#footnotes" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li id="fn-sense"&gt;
+&lt;p&gt;If my internal sense of what a Git alias should be called is occupied by a
+base system command that itself is in muscle memory—which only occurs for
+2-letter aliases—I transpose the two letters, or repeat a letter somewhere.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;git checkout -p&lt;/code&gt; thus becomes &lt;code&gt;pc&lt;/code&gt; to avoid &lt;code&gt;cp(1)&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;git cherry-pick&lt;/code&gt; is uncommon enough that it loses the fight for &lt;code&gt;pc&lt;/code&gt;
+and gets &lt;code&gt;pcp&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;git rm&lt;/code&gt; gets &lt;code&gt;mrm&lt;/code&gt;, because &lt;code&gt;mr&lt;/code&gt; on its own feels like it should be
+obviously merge-related — there are 9 aliases beginning with &lt;code&gt;m&lt;/code&gt; that
+&lt;em&gt;are&lt;/em&gt; merge-related — but at 3 characters, &lt;code&gt;mrm&lt;/code&gt; is unique enough to
+be recognizable.&lt;/li&gt;
+&lt;li&gt;Why not &lt;code&gt;cpc&lt;/code&gt; or &lt;code&gt;rmr&lt;/code&gt;?  iirc, &lt;code&gt;checkout -p&lt;/code&gt; got &lt;code&gt;pc&lt;/code&gt; first; when it
+was time to introduce a &lt;code&gt;cherry-pick&lt;/code&gt; alias, there was no consideration
+of giving it &lt;code&gt;cpc&lt;/code&gt;—&lt;code&gt;pc&lt;/code&gt; was an established metaphor for this
+initialism, whereas &lt;code&gt;cpc&lt;/code&gt; would break that and introduce confusion.
+Moving &lt;code&gt;checkout -p&lt;/code&gt; to &lt;code&gt;cpc&lt;/code&gt; for consistency’s sake is unacceptable
+and leaves no clear answer for &lt;code&gt;cherry-pick&lt;/code&gt;.  &lt;code&gt;rmr&lt;/code&gt; seems fine, but
+continuing with the weirdness is what makes a beautiful natural
+language :)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;a href="#fnref-sense" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="1" aria-label="Back to reference 1"&gt;↩&lt;/a&gt;
+&lt;/li&gt;
+&lt;li id="fn-int"&gt;
+&lt;p&gt;Which I have to do once every 8–10 minutes on average, at a guess. &lt;a href="#fnref-int" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="2" aria-label="Back to reference 2"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:kivikakk.ee,2023-06-29:/notes/0002-untangling-cycles.html</id>
+    <title type="html">Untangling cycles</title>
+    <published>2023-06-29T00:51:00Z</published>
+    <updated>2023-06-29T00:51:00Z</updated>
+    <link rel="alternate" href="https://kivikakk.ee/notes/0002-untangling-cycles.html" type="text/html"/>
+    <content type="html">&lt;p&gt;This is straight from my journal, so it starts without warning.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;The bit packing is turning out to be surprisingly tricky!&lt;/p&gt;
+&lt;p&gt;Memory is synchronous but our uses of &lt;code&gt;addr[0]&lt;/code&gt; were all comb, so they didn’t
+align with the actual target in the cycle it got transmitted from memory when we
+were advancing &lt;code&gt;addr&lt;/code&gt; every cycle. This was a really good exercise in Being
+Confused As Heck.&lt;/p&gt;
+&lt;p&gt;Going to try to explicate the above a bit more clearly for my own elucidation.
+Ignoring the write half of the equation for simplicity—the issues faced are the
+same.&lt;/p&gt;
+&lt;p&gt;This post is literate Python. Why not. We have the following as baseline:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;math&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;typing&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Optional&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;amaranth&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Elaboratable&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Memory&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Record&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Signal&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;amaranth.build&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Platform&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;amaranth.hdl.ast&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ShapeCastable&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;amaranth.hdl.mem&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ReadPort&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;amaranth.hdl.rec&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;DIR_FANIN&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;DIR_FANOUT&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;amaranth.sim&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Simulator&lt;/span&gt;
+
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;ROMBus&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Record&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ShapeCastable&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ShapeCastable&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="nf"&gt;super&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="p"&gt;[&lt;/span&gt;
+                &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;addr&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;DIR_FANIN&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+                &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;data&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;DIR_FANOUT&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+            &lt;span class="p"&gt;],&lt;/span&gt;
+            &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;ROMBus&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Downstream&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Record&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="nf"&gt;super&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="p"&gt;[&lt;/span&gt;
+                &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;data&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;DIR_FANIN&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+                &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;stb&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;DIR_FANIN&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+            &lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="p"&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A &lt;code&gt;ROMBus&lt;/code&gt; is a connectable path to access some read-only memory. &lt;code&gt;Downstream&lt;/code&gt;
+here is a hypothetical recipient of data being read from ROM. (The ROM is
+actually a RAM that gets filled on power-on from flash.)&lt;/p&gt;
+&lt;p&gt;The key problem I was solving was that, until now, I’ve been storing all my data
+in 8-bit wide &lt;code&gt;Memory&lt;/code&gt; instances, but a lot of the actual embedded block RAM I’m
+using has 16-bit wide words. As a result, the upper 8 bits of every word has
+been left unused.&lt;/p&gt;
+&lt;p&gt;It’d be nice to add a translation layer that transparently forwarded reads and
+writes from an 8-bit addressable space into the 16-bit words. Even bytes in the
+lower halves, odd bytes in the upper halves. Here’s what that’d look like:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;&lt;span class="n"&gt;ROM_CONTENT_PACKED&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mh"&gt;0x2211&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mh"&gt;0x4433&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mh"&gt;0x6655&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mh"&gt;0x8877&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;ROM_LENGTH&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The length of the ROM that all the downstream consumers care about is the 8-bit
+addressable one—address 0 has &lt;code&gt;0x11&lt;/code&gt;, address 1 &lt;code&gt;0x22&lt;/code&gt;, etc. The fact that we
+have 8 bytes packed into 4 words of 16 bits is irrelevant to them.&lt;/p&gt;
+&lt;p&gt;Here’s where our example will play out:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Example&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Elaboratable&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;downstream&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Downstream&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;elaborate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;platform&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Optional&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Platform&lt;/span&gt;&lt;span class="p"&gt;]):&lt;/span&gt;
+        &lt;span class="n"&gt;m&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;Downstream&lt;/code&gt; is exposed on the instance so we can access it from our
+simulator process.&lt;/p&gt;
+&lt;p&gt;We now need to do the following things:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Determine the size of the packed RAM.&lt;/li&gt;
+&lt;li&gt;Create our &lt;code&gt;Memory&lt;/code&gt; instance for it.
+&lt;ul&gt;
+&lt;li&gt;We’ll initialize it with &lt;code&gt;init&lt;/code&gt; here, and completely ignore the write
+aspect of the scenario. The issues it will suffer from are the same. (I
+sure suffered!)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Get the &lt;code&gt;ReadPort&lt;/code&gt; for our RAM. I’m asserting the lengths here illustratively for the reader’s benefit.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;        &lt;span class="n"&gt;packed_size&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;ceil&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ROM_LENGTH&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;rom_mem&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Memory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;depth&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;packed_size&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;init&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ROM_CONTENT_PACKED&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;submodules&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rom_rd&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;rom_rd&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;rom_mem&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;read_port&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="nf"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+        &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="nf"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;rom_rd.addr&lt;/code&gt; determines the address in the 16-bit-wide RAM (&lt;code&gt;0x0&lt;/code&gt;–&lt;code&gt;0x3&lt;/code&gt;), and
+&lt;code&gt;rom_rd.data&lt;/code&gt; returns those 16 bits. &lt;code&gt;Memory&lt;/code&gt; is &lt;a href="https://github.com/amaranth-lang/amaranth/blob/99417d6499b006a172d5b8cba413fd6181737374/amaranth/hdl/mem.py#L153"&gt;synchronous by
+default&lt;/a&gt;
+(and the read enable is also &lt;a href="https://github.com/amaranth-lang/amaranth/blob/99417d6499b006a172d5b8cba413fd6181737374/amaranth/hdl/mem.py#L165-L169"&gt;always on under default
+settings&lt;/a&gt;),
+so, given a made-up &lt;code&gt;mem[x]&lt;/code&gt; operator, the following timeline applies:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;cycle &lt;em&gt;n&lt;/em&gt;+0: some process assigns &lt;code&gt;rom_rd.addr.eq(x)&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;cycle &lt;em&gt;n&lt;/em&gt;+1: the read port sees its new &lt;code&gt;addr&lt;/code&gt; value and assigns
+&lt;code&gt;rom_rd.data.eq(mem[x])&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;cycle &lt;em&gt;n&lt;/em&gt;+2: &lt;code&gt;rom_rd.data&lt;/code&gt; takes the value of &lt;code&gt;mem[x]&lt;/code&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now we’ll create our &lt;code&gt;ROMBus&lt;/code&gt;. This is what all the RTL I had was already
+using—it was connected directly to the read port of the 8-wide memory.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;        &lt;span class="n"&gt;rom_bus&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;ROMBus&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ROM_LENGTH&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="nf"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;
+        &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="nf"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We’re going to put the actual translation logic and state machine in separate
+functions, so they can be changed later while preserving the literacy of this
+post. &lt;em&gt;Why not&lt;/em&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;translation&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fsm&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We want to hook up the ROM bus to the memory in a transparent fashion. Here’s
+what I started with:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;translation&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ReadPort&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ROMBus&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;comb&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+            &lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+            &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+                &lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;word_select&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="p"&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;We shift off the last bit of the input (8-bit) address to create the output
+(16-bit) address, creating the following mapping:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align="right"&gt;8-bit address&lt;/th&gt;
+&lt;th align="right"&gt;16-bit address&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x0&lt;/code&gt; / &lt;code&gt;0b000&lt;/code&gt;
+&lt;/td&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x0&lt;/code&gt; / &lt;code&gt;0b00&lt;/code&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x1&lt;/code&gt; / &lt;code&gt;0b001&lt;/code&gt;
+&lt;/td&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x0&lt;/code&gt; / &lt;code&gt;0b00&lt;/code&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x2&lt;/code&gt; / &lt;code&gt;0b010&lt;/code&gt;
+&lt;/td&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x1&lt;/code&gt; / &lt;code&gt;0b01&lt;/code&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x3&lt;/code&gt; / &lt;code&gt;0b011&lt;/code&gt;
+&lt;/td&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x1&lt;/code&gt; / &lt;code&gt;0b01&lt;/code&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x4&lt;/code&gt; / &lt;code&gt;0b100&lt;/code&gt;
+&lt;/td&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x2&lt;/code&gt; / &lt;code&gt;0b10&lt;/code&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x5&lt;/code&gt; / &lt;code&gt;0b101&lt;/code&gt;
+&lt;/td&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x2&lt;/code&gt; / &lt;code&gt;0b10&lt;/code&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x6&lt;/code&gt; / &lt;code&gt;0b110&lt;/code&gt;
+&lt;/td&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x3&lt;/code&gt; / &lt;code&gt;0b11&lt;/code&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x7&lt;/code&gt; / &lt;code&gt;0b111&lt;/code&gt;
+&lt;/td&gt;
+&lt;td align="right"&gt;
+&lt;code&gt;0x3&lt;/code&gt; / &lt;code&gt;0b11&lt;/code&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;We select the 8-bit word from the 16-bit data coming out of the memory corresponding to the LSB of the input (8-bit) address.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;a.word_select(b, w)&lt;/code&gt; is essentially &lt;code&gt;a[b*w : (b+1)*w]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;When the LSB of the 8-bit address is 0, this will select &lt;code&gt;rd_data[0:8]&lt;/code&gt;.
+When the LSB is 1, this will select &lt;code&gt;rd_data[8:16]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;So:
+&lt;ul&gt;
+&lt;li&gt;8-bit address &lt;code&gt;0x0&lt;/code&gt; will select &lt;code&gt;mem[0x0][0:8]&lt;/code&gt;,&lt;/li&gt;
+&lt;li&gt;8-bit address &lt;code&gt;0x1&lt;/code&gt; will select &lt;code&gt;mem[0x0][8:16]&lt;/code&gt;,&lt;/li&gt;
+&lt;li&gt;8-bit address &lt;code&gt;0x2&lt;/code&gt; will select &lt;code&gt;mem[0x1][0:8]&lt;/code&gt;,&lt;/li&gt;
+&lt;li&gt;8-bit address &lt;code&gt;0x3&lt;/code&gt; will select &lt;code&gt;mem[0x1][8:16]&lt;/code&gt;,&lt;/li&gt;
+&lt;li&gt;etc.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now we implement a reader from our ROM:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;fsm&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ROMBus&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sync&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;downstream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;stb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;FSM&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+            &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;State&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;INITIAL&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+                &lt;span class="c1"&gt;# cycle n+0
+&lt;/span&gt;                &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sync&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;next&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;WAIT&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+
+            &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;State&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;WAIT&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+                &lt;span class="c1"&gt;# cycle n+1 / n'+1
+&lt;/span&gt;                &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;next&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;READ&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+
+            &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;State&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;READ&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+                &lt;span class="c1"&gt;# cycle n+2, n'+0
+&lt;/span&gt;                &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sync&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+                    &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;downstream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+                    &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;downstream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;stb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+                    &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+                &lt;span class="p"&gt;]&lt;/span&gt;
+                &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;next&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;WAIT&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is a simple process that reads data and passes them along to some
+downstream process (which needs to be able to accept this data as fast as we
+give it to them!).&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We start at address zero (&lt;em&gt;n&lt;/em&gt;+0),&lt;/li&gt;
+&lt;li&gt;wait a cycle for the memory to see it (&lt;em&gt;n&lt;/em&gt;+1),&lt;/li&gt;
+&lt;li&gt;and then pass it to the downstream (&lt;em&gt;n&lt;/em&gt;+2) while advancing the address we read
+(&lt;em&gt;n&lt;/em&gt;’+0).&lt;/li&gt;
+&lt;li&gt;The next cycle we’re back in &lt;code&gt;WAIT&lt;/code&gt; as advanced address is seen by the memory
+(&lt;em&gt;n&lt;/em&gt;’+1).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We end up strobing the downstream every other cycle. (That strobe is seen in the
+&lt;em&gt;n&lt;/em&gt;+1 / &lt;em&gt;n&lt;/em&gt;’+1 cycle.)&lt;/p&gt;
+&lt;p&gt;Let’s simulate it and report the results:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;dut&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Example&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;process&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+        &lt;span class="n"&gt;count&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+        &lt;span class="k"&gt;yield&lt;/span&gt;
+        &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="nf"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;dut&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;downstream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;stb&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+                &lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;data: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;dut&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;downstream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="si"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;02&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                &lt;span class="n"&gt;count&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+                &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                    &lt;span class="k"&gt;return&lt;/span&gt;
+            &lt;span class="k"&gt;yield&lt;/span&gt;
+
+    &lt;span class="n"&gt;sim&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Simulator&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;dut&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;sim&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;add_clock&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;1e-6&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;sim&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;add_sync_process&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;sim&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;run&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This can now be run:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;$&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;python &lt;span class="nt"&gt;-c&lt;/span&gt; &lt;span class="s1"&gt;'import ex; ex.main()'&lt;/span&gt;
+&lt;span class="go"&gt;data: 11
+data: 22
+data: 33
+data: 44
+data: 55
+data: 66
+data: 77
+data: 88&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It’s perfect!&lt;/p&gt;
+&lt;p&gt;Almost. Let’s revisit the timeline for accessing the synchronous memory:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;cycle &lt;em&gt;n&lt;/em&gt;+0: &lt;code&gt;rom_rd.addr.eq(x)&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;cycle &lt;em&gt;n&lt;/em&gt;+1: read port sees new &lt;code&gt;addr&lt;/code&gt;, assigns &lt;code&gt;rom_rd.data.eq(mem[x])&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;cycle &lt;em&gt;n&lt;/em&gt;+2: &lt;code&gt;rom_rd.data&lt;/code&gt; sees &lt;code&gt;mem[x]&lt;/code&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The important part is that you can assign a new address &lt;code&gt;y&lt;/code&gt; in cycle &lt;em&gt;n&lt;/em&gt;+1,
+without impacting what happens in cycle &lt;em&gt;n&lt;/em&gt;+2, such that &lt;code&gt;mem[y]&lt;/code&gt; is now
+available to use in cycle &lt;em&gt;n&lt;/em&gt;+3. The read port will only see the address &lt;code&gt;y&lt;/code&gt; in
+the same cycle that it’s already propagated &lt;code&gt;mem[x]&lt;/code&gt; into its data register.&lt;/p&gt;
+&lt;p&gt;Let’s now change our state machine to take advantage of this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;fsm&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Example&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ROMBus&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sync&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;downstream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;stb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;FSM&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+        &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;State&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;INITIAL&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="c1"&gt;# cycle n+0
+&lt;/span&gt;            &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sync&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;next&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;WAIT&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+
+        &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;State&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;WAIT&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="c1"&gt;# cycle n+1, n'+0
+&lt;/span&gt;            &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sync&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;next&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;READ&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+
+        &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;State&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;READ&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="c1"&gt;# cycle n+2, n'+1, n''+0
+&lt;/span&gt;            &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sync&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+                &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;downstream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+                &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;downstream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;stb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+                &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+            &lt;span class="p"&gt;]&lt;/span&gt;
+
+
+&lt;span class="n"&gt;Example&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fsm&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;fsm&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We start at address zero (&lt;em&gt;n&lt;/em&gt;+0),&lt;/li&gt;
+&lt;li&gt;while waiting a cycle for the memory to see it (&lt;em&gt;n&lt;/em&gt;+1), we also increment the
+address to one (&lt;em&gt;n&lt;/em&gt;’+0),&lt;/li&gt;
+&lt;li&gt;and then pass the first result the downstream (&lt;em&gt;n&lt;/em&gt;+2), while the memory is
+just now seeing the second result (&lt;em&gt;n&lt;/em&gt;’+1), and simultaneously increment the
+address we read (&lt;em&gt;n&lt;/em&gt;’’+0).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We don’t change state once we’re in &lt;code&gt;READ&lt;/code&gt;: every cycle we hand to downstream
+the data from the address we set two cycles ago; every cycle the memory is
+seeing the address we gave one cycle ago; every cycle we increment the address
+to keep it going.&lt;/p&gt;
+&lt;p&gt;(My wording here muddles up the timing of when we “set” a given value quite a
+lot — really, we &lt;em&gt;initiate&lt;/em&gt; the setting of the address two cycles ago, which one
+cycle ago &lt;em&gt;is&lt;/em&gt; set (and seen), which this cycle we then see the data returned
+of.)&lt;/p&gt;
+&lt;p&gt;This is pretty theoretical in this form, but I have a few state machines that do
+this kind of sliding continuous read in a limited fashion.&lt;/p&gt;
+&lt;p&gt;So what happens?&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;$&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;python &lt;span class="nt"&gt;-c&lt;/span&gt; &lt;span class="s1"&gt;'import ex; ex.main()'&lt;/span&gt;
+&lt;span class="go"&gt;data: 22
+data: 11
+data: 44
+data: 33
+data: 66
+data: 55
+data: 88
+data: 77&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;All the bytes are reversed! (This was a &lt;em&gt;lot&lt;/em&gt; weirder to debug when the same
+problem might have been affecting the initial write to RAM, too.)&lt;/p&gt;
+&lt;p&gt;Why?&lt;/p&gt;
+&lt;p&gt;We’ll review the translation statements:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;comb&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;word_select&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;),&lt;/span&gt;
+&lt;span class="p"&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This translation happens in the combinatorial domain, meaning that &lt;code&gt;rom_rd.addr&lt;/code&gt;
+will change to &lt;code&gt;rom_bus.addr &amp;gt;&amp;gt; 1&lt;/code&gt; as soon as a change on &lt;code&gt;rom_bus.addr&lt;/code&gt; is
+registered — there isn’t an additional cycle between the requested 8-bit address
+on the ROM bus changing and the read port’s 16-bit address changing:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align="right"&gt;cycle&lt;/th&gt;
+&lt;th align="right"&gt;statement issued&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;ROM bus&lt;/nobr&gt; addr&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;read port&lt;/nobr&gt; addr&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;read port&lt;/nobr&gt; data&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;0&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;rom_bus.addr.eq(0)&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;1&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;rom_bus.addr.eq(1)&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;2&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;rom_bus.addr.eq(2)&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x2211&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;3&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;rom_bus.addr.eq(3)&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;2&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x2211&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;4&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;rom_bus.addr.eq(4)&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;3&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x4433&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;5&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;rom_bus.addr.eq(5)&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;4&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;2&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x4433&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Similarly, the ROM bus data port will be updated as soon as the read port’s data
+port (&lt;code&gt;rom_rd.data&lt;/code&gt;) changes.&lt;/p&gt;
+&lt;p&gt;It will &lt;em&gt;also&lt;/em&gt; be updated as soon as the LSB of the ROM bus’s requested address
+changes (&lt;code&gt;rom_bus.addr[0]&lt;/code&gt;).&lt;/p&gt;
+&lt;p&gt;But by the time we’re actually getting data in the read port for an address, the
+ROM bus has registered the next address!  Thus we select the half of the 16-bit
+word based on the LSB of the &lt;em&gt;following&lt;/em&gt; address, which (given the addresses are
+sequential) will always be the opposite half to the one we really want:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align="right"&gt;cycle&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;ROM bus&lt;/nobr&gt; addr&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;read port&lt;/nobr&gt; data&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;ROM bus&lt;/nobr&gt; &lt;nobr&gt;addr [0]&lt;/nobr&gt;
+&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;ROM bus&lt;/nobr&gt; data&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;0&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;1&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;2&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x2211&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x22&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;3&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;2&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x2211&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x11&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;4&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;3&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x4433&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x44&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;5&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;4&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x4433&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x33&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;We need to introduce a delay in the address as used by the translation on the
+way back out, to account for the fact that read data corresponds to the address
+from the previous registered cycle, not this one:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;translation&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Example&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ReadPort&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ROMBus&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;last_addr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Signal&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;like&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sync&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;last_addr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;comb&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="n"&gt;rom_bus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rom_rd&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;word_select&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;last_addr&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt;
+    &lt;span class="p"&gt;]&lt;/span&gt;
+
+
+&lt;span class="n"&gt;Example&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;translation&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;translation&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This gives:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align="right"&gt;cycle&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;ROM bus&lt;/nobr&gt; addr&lt;/th&gt;
+&lt;th align="right"&gt;last &lt;nobr&gt;ROM bus&lt;/nobr&gt; addr&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;read port&lt;/nobr&gt; data&lt;/th&gt;
+&lt;th align="right"&gt;last &lt;nobr&gt;ROM bus&lt;/nobr&gt; &lt;nobr&gt;addr [0]&lt;/nobr&gt;
+&lt;/th&gt;
+&lt;th align="right"&gt;
+&lt;nobr&gt;ROM bus&lt;/nobr&gt; data&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;0&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;1&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;em&gt;x&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;2&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x2211&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x11&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;3&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;2&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x2211&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x22&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;4&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;3&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;2&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x4433&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x33&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="right"&gt;5&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;4&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;3&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x4433&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;
+&lt;td align="right"&gt;&lt;code&gt;0x44&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;And so:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;$&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;python &lt;span class="nt"&gt;-c&lt;/span&gt; &lt;span class="s1"&gt;'import ex; ex.main()'&lt;/span&gt;
+&lt;span class="go"&gt;data: 11
+data: 22
+data: 33
+data: 44
+data: 55
+data: 66
+data: 77
+data: 88&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I like how the &lt;em&gt;x&lt;/em&gt;’s in this table don’t flow back “up” in time as the data
+dependencies flow right, whereas in the previous table, they do.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:kivikakk.ee,2023-06-27:/notes/0001-hdl-toolchain-source.html</id>
+    <title type="html">Installing an HDL toolchain from source</title>
+    <published>2023-06-27T09:12:00Z</published>
+    <updated>2023-06-27T09:12:00Z</updated>
+    <link rel="alternate" href="https://kivikakk.ee/notes/0001-hdl-toolchain-source.html" type="text/html"/>
+    <content type="html">&lt;section id="opening"&gt;
+&lt;p&gt;It occurred to me while writing up &lt;a href="https://hrzn.ee/kivikakk/sh1107/tree/aeb1c3f77d3226760755331624dd7920779cc2b7#requirements"&gt;§ Requirements&lt;/a&gt; in the README
+for some&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-baby" id="fnref-baby" data-footnote-ref=""&gt;1&lt;/a&gt;&lt;/sup&gt; gateware that getting the whole beginner’s open-source FPGA
+toolchain set up can be a serious stumbling block, as I imagine it probably was
+for me once.&lt;/p&gt;
+&lt;p&gt;The main pre-packaged solution that comes to mind is &lt;a href="https://github.com/YosysHQ/oss-cad-suite-build"&gt;OSS CAD Suite&lt;/a&gt;. It’s
+excellent, but common to “all-in-one” solutions, it makes assumptions that mean
+it’s prone to inflexibility in certain ways. Rebuilding just one of the tools is
+not always as simple as that — Python environment or shared library conflicts
+can result, and the tools are wrapped so as to always prefer their own
+distribution, necessitating further hacks for those that call each other.&lt;/p&gt;
+&lt;p&gt;With any luck, you won’t run into any of these cases, but if you do, getting
+everything built for yourself correctly can be a bit vexing — the YosysHQ tools’
+documentation tends to point back to their own pre-built packages (and products)
+in preference to (and sometimes instead of) instructing on how to build.&lt;/p&gt;
+&lt;p&gt;I’ve done this process three times recently while rejigging my development
+environments, so I’m describing it for posterity/others.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="scope"&gt;
+&lt;h2&gt;Scope &lt;a href="#scope" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;By the end of this guide, you’ll have the following ready to go:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://git-scm.com/"&gt;Git&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.python.org"&gt;Python 3&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://amaranth-lang.org/docs/amaranth/latest/intro.html"&gt;Amaranth&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://yosyshq.net/yosys/"&gt;Yosys&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://github.com/YosysHQ/nextpnr"&gt;nextpnr&lt;/a&gt; with &lt;a href="https://github.com/YosysHQ/icestorm"&gt;Project IceStorm&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://github.com/YosysHQ/sby"&gt;SymbiYosys&lt;/a&gt; and &lt;a href="https://github.com/Z3Prover/z3"&gt;Z3&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a href="https://git-scm.com/"&gt;Git&lt;/a&gt; is for acquiring source code.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://www.python.org"&gt;Python 3&lt;/a&gt; is for using Amaranth.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://amaranth-lang.org/docs/amaranth/latest/intro.html"&gt;Amaranth&lt;/a&gt; is the &lt;a href="https://en.wikipedia.org/wiki/Hardware_description_language"&gt;HDL&lt;/a&gt; I’m using. It is a Python library which consists of a
+language for describing digital logic, as well as facilitating simulation and
+building of the resulting designs. It integrates well with the ecosystem, and
+permits intermixing with &lt;a href="https://en.wikipedia.org/wiki/Verilog"&gt;Verilog&lt;/a&gt; (or &lt;a href="https://en.wikipedia.org/wiki/VHDL"&gt;VHDL&lt;/a&gt;). At time of writing, its
+development pace has quickened.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://yosyshq.net/yosys/"&gt;Yosys&lt;/a&gt; is the synthesis framework at the heart of Amaranth. It is a digital
+logic synthesizer, which is a phrasing that severely understates how much work
+is involved—for more information, see the &lt;a href="https://yosys.readthedocs.io/_/downloads/en/latest/pdf/"&gt;Yosys manual&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Amaranth actually comes with its own &lt;a href="https://pypi.org/project/amaranth-yosys/"&gt;portable Yosys&lt;/a&gt; built-in, which works
+beautifully. We’ll use it, but we’ll build it separately, too: for cases when we
+want to make our own changes, or use step-through debugging to understand what’s
+happening. It’s also necessary for formal verification.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/YosysHQ/nextpnr"&gt;nextpnr&lt;/a&gt; and &lt;a href="https://github.com/YosysHQ/icestorm"&gt;Project IceStorm&lt;/a&gt; are for targeting the Lattice &lt;a href="https://en.wikipedia.org/wiki/ICE_(FPGA)#iCE40_(40_nm)"&gt;iCE40&lt;/a&gt; family
+of FPGAs, which is known for its relative accessibility. I’ve been learning with
+an &lt;a href="https://1bitsquared.com/products/icebreaker"&gt;iCEBreaker&lt;/a&gt; (&lt;a href="https://www.crowdsupply.com/1bitsquared/icebreaker-fpga"&gt;see also&lt;/a&gt;), which is built around
+the iCE40UP5k FPGA, and have found this to be true.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/YosysHQ/sby"&gt;SymbiYosys&lt;/a&gt; and &lt;a href="https://github.com/Z3Prover/z3"&gt;Z3&lt;/a&gt; are for &lt;a href="https://en.wikipedia.org/wiki/Formal_verification"&gt;formal verification&lt;/a&gt;. I promise it’s good.&lt;/p&gt;
+&lt;p&gt;Instructions are verified for Linux &lt;code&gt;x86_64&lt;/code&gt; and macOS &lt;code&gt;arm64&lt;/code&gt;. I intended to
+cover Windows, too, but over four months found the experience
+inconsistent&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-windows" id="fnref-windows" data-footnote-ref=""&gt;2&lt;/a&gt;&lt;/sup&gt; enough that it was easier to use WSL 2&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-wsl" id="fnref-wsl" data-footnote-ref=""&gt;3&lt;/a&gt;&lt;/sup&gt;. On Linux
+and WSL, I’ve used Debian.&lt;/p&gt;
+&lt;p&gt;I assume Linux users can install packages using the distribution package
+manager, and macOS users using &lt;a href="https://brew.sh/"&gt;Homebrew&lt;/a&gt;. I’m going to avoid installing almost
+anything globally, however, that wouldn’t already get installed by your package
+manager as a matter of course, especially when there’s reasons you might need
+multiple versions around.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="git"&gt;
+&lt;h2&gt;Git &lt;a href="#git" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;The &lt;a href="https://git-scm.com/"&gt;Git&lt;/a&gt; website’s &lt;a href="https://git-scm.com/downloads"&gt;Downloads&lt;/a&gt; page has instructions for
+acquiring it through your relevant package manager.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="python-3"&gt;
+&lt;h2&gt;Python 3 &lt;a href="#python-3" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;That was easy. Now the opinions start.&lt;/p&gt;
+&lt;p&gt;Install the &lt;a href="https://asdf-vm.com/"&gt;&lt;code&gt;asdf&lt;/code&gt; Multiple Version Runtime Manager&lt;/a&gt;. The &lt;a href="https://asdf-vm.com/guide/getting-started.html"&gt;Getting
+Started&lt;/a&gt; page has commands for dependency installation
+through package manager. Use the official &lt;code&gt;git&lt;/code&gt; method to download &lt;code&gt;asdf&lt;/code&gt;
+itself, and then follow the instructions for your shell.&lt;/p&gt;
+&lt;p&gt;Now install the Python &lt;code&gt;asdf&lt;/code&gt; plugin, and install the latest stable version of
+Python:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=$"&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;asdf plugin add python
+&lt;span class="go"&gt;initializing plugin repository...Cloning into '/home/charlotte/.asdf/repository'...
+remote: Enumerating objects: 5273, done.
+remote: Counting objects: 100% (481/481), done.
+remote: Compressing objects: 100% (88/88), done.
+remote: Total 5273 (delta 419), reused 445 (delta 393), pack-reused 4792
+Receiving objects: 100% (5273/5273), 1.21 MiB | 29.47 MiB/s, done.
+Resolving deltas: 100% (2849/2849), done.
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;asdf latest python
+&lt;span class="go"&gt;3.11.4
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;asdf &lt;span class="nb"&gt;install &lt;/span&gt;python 3.11.4
+&lt;span class="go"&gt;python-build 3.11.4 /home/charlotte/.asdf/installs/python/3.11.4
+Downloading Python-3.11.4.tar.xz...
+-&amp;gt; https://www.python.org/ftp/python/3.11.4/Python-3.11.4.tar.xz
+Installing Python-3.11.4...
+Installed Python-3.11.4 to /home/charlotte/.asdf/installs/python/3.11.4
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;asdf global python 3.11.4
+&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;(You might get some warnings about extensions not being compiled. That’s OK.
+There’s also 3.12.0b3 available at time of writing, if you don’t mind a beta.)&lt;/p&gt;
+&lt;p&gt;The last command makes it the default Python for our user. &lt;code&gt;asdf&lt;/code&gt; puts some
+shims in our &lt;code&gt;PATH&lt;/code&gt; which use a combination of our configured defaults
+(&lt;code&gt;global&lt;/code&gt;), our current path (&lt;code&gt;local&lt;/code&gt;), and environment variables (&lt;code&gt;shell&lt;/code&gt;) to
+select the desired version:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=$,&gt;&gt;&gt;"&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;which python
+&lt;span class="go"&gt;/home/charlotte/.asdf/shims/python
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;asdf current python
+&lt;span class="go"&gt;python          3.11.4          /home/charlotte/.tool-versions
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;asdf where python
+&lt;span class="go"&gt;/home/charlotte/.asdf/installs/python/3.11.4
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;asdf which python
+&lt;span class="go"&gt;/home/charlotte/.asdf/installs/python/3.11.4/bin/python
+&lt;/span&gt;&lt;span class="gp"&gt;~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;python
+&lt;span class="go"&gt;Python 3.11.4 (main, Jun 26 2023, 16:06:57) [GCC 10.2.1 20210110] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/section&gt;
+&lt;section id="venv"&gt;
+&lt;h3&gt;venv &lt;a href="#venv" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;The last thing we want to do is actually a per-project step. We’re about to
+install Amaranth, which is a Python dependency, and so we want to make sure
+we’re installing Python dependencies in a separate &lt;a href="https://docs.python.org/3/library/venv.html"&gt;virtual environment&lt;/a&gt; per
+project, that they don’t interfere or conflict with each other.&lt;/p&gt;
+&lt;p&gt;In your project directory, create a new virtual environment called &lt;code&gt;venv&lt;/code&gt;, and
+then activate it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;prj $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;python &lt;span class="nt"&gt;-m&lt;/span&gt; venv venv
+&lt;span class="gp"&gt;prj $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;source &lt;/span&gt;venv/bin/activate
+&lt;span class="gp"&gt;(venv) prj $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;(Note there are a few different &lt;code&gt;activate&lt;/code&gt; variants in the &lt;code&gt;bin&lt;/code&gt; directory for
+different shells.)&lt;/p&gt;
+&lt;p&gt;Add &lt;code&gt;venv&lt;/code&gt; to your &lt;code&gt;.gitignore&lt;/code&gt; or similar.&lt;/p&gt;
+&lt;p&gt;It’s important to remember to activate the virtual environment before running
+Python or installing dependencies with &lt;code&gt;pip&lt;/code&gt;. Many IDEs will automatically
+activate (or prompt to activate) virtual environments when they’re detected in
+the root of a project. Similarly, some shells can be configured to do similar.&lt;/p&gt;
+&lt;p&gt;Note that the Python instance used by the virtual environment is tied to the
+specific version we had chosen through &lt;code&gt;asdf&lt;/code&gt;, and not the shim:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;(venv) prj $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;readlink &lt;/span&gt;venv/bin/python
+&lt;span class="go"&gt;/home/charlotte/.asdf/installs/python/3.11.4/bin/python
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) prj $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We’re ready to install Python dependencies.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="amaranth"&gt;
+&lt;h2&gt;Amaranth &lt;a href="#amaranth" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Firstly, note Amaranth’s own &lt;a href="https://amaranth-lang.org/docs/amaranth/latest/install.html"&gt;installation instructions&lt;/a&gt;. We’ll follow along, and deviate from them somewhat.&lt;/p&gt;
+&lt;p&gt;Install GTKWave from your package manager. We’ll come back to Yosys.&lt;/p&gt;
+&lt;p&gt;Verify we do in fact have the latest &lt;code&gt;pip&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;(venv) prj $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;pip &lt;span class="nb"&gt;install&lt;/span&gt; &lt;span class="nt"&gt;--upgrade&lt;/span&gt; pip
+&lt;span class="go"&gt;Requirement already satisfied: pip in ./venv/lib/python3.11/site-packages (23.1.2)
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) prj $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We do not pass &lt;code&gt;--user&lt;/code&gt; to &lt;code&gt;pip&lt;/code&gt;—it is rejected in a virtual environment, for
+&lt;code&gt;--user&lt;/code&gt; implies writing to your home directory, which would escape the virtual
+environment.&lt;/p&gt;
+&lt;p&gt;We’re going to skip the latest release and go straight to an editable
+development snapshot. You may want to clone it within your project directory,
+perhaps as a Git submodule, or along-side. I’m going with along-side.&lt;/p&gt;
+&lt;p&gt;Clone Amaranth and install it in editable mode, with the built-in Yosys:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;(venv) prj $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; ..
+&lt;span class="gp"&gt;(venv) ~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;git clone https://github.com/amaranth-lang/amaranth
+&lt;span class="go"&gt;Cloning into 'amaranth'...
+remote: Enumerating objects: 8651, done.
+remote: Counting objects: 100% (272/272), done.
+remote: Compressing objects: 100% (95/95), done.
+remote: Total 8651 (delta 170), reused 227 (delta 162), pack-reused 8379
+Receiving objects: 100% (8651/8651), 1.71 MiB | 29.14 MiB/s, done.
+Resolving deltas: 100% (6474/6474), done.
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) ~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;cd &lt;/span&gt;amaranth
+&lt;span class="gp"&gt;(venv) amaranth $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;pip &lt;span class="nb"&gt;install&lt;/span&gt; &lt;span class="nt"&gt;--editable&lt;/span&gt; .[builtin-yosys]
+&lt;span class="go"&gt;Obtaining file:///home/charlotte/amaranth
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+
+[... lots of output ...]
+
+Successfully built amaranth
+Installing collected packages: wasmtime, pyvcd, MarkupSafe, Jinja2, amaranth-yosys, amaranth
+Successfully installed Jinja2-3.1.2 MarkupSafe-2.1.3 amaranth-0.4.dev134+g99417d6 amaranth-yosys-0.25.0.0.post72 pyvcd-0.4.0 wasmtime-9.0.0
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) amaranth $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note that the virtual environment remained active even as we left the directory
+we created it in. This is desirable: it means the editable snapshot was
+installed in our virtual environment.&lt;/p&gt;
+&lt;p&gt;We’ll install the &lt;a href="https://github.com/amaranth-lang/amaranth-boards"&gt;board definitions&lt;/a&gt; now, too. Clone the
+repository and install it the same way, except without the &lt;code&gt;[builtin-yosys]&lt;/code&gt;
+option:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;(venv) amaranth $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; ..
+&lt;span class="gp"&gt;(venv) ~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;git clone https://github.com/amaranth-lang/amaranth-boards
+&lt;span class="go"&gt;Cloning into 'amaranth-boards'...
+remote: Enumerating objects: 1353, done.
+remote: Counting objects: 100% (532/532), done.
+remote: Compressing objects: 100% (136/136), done.
+remote: Total 1353 (delta 426), reused 405 (delta 396), pack-reused 821
+Receiving objects: 100% (1353/1353), 307.90 KiB | 17.11 MiB/s, done.
+Resolving deltas: 100% (943/943), done.
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) ~ $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;cd &lt;/span&gt;amaranth-boards/
+&lt;span class="gp"&gt;(venv) amaranth-boards $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;pip &lt;span class="nb"&gt;install&lt;/span&gt; &lt;span class="nt"&gt;--editable&lt;/span&gt; &lt;span class="nb"&gt;.&lt;/span&gt;
+&lt;span class="go"&gt;Obtaining file:///home/charlotte/amaranth-boards
+  Installing build dependencies ... done
+  Checking if build backend supports build_editable ... done
+  Getting requirements to build editable ... done
+  Preparing editable metadata (pyproject.toml) ... done
+
+[... lots of output ...]
+
+Successfully built amaranth-boards
+Installing collected packages: amaranth-boards
+Successfully installed amaranth-boards-0.1.dev228+g54e6ac4
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) amaranth-boards $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We’re ready. We can verify the installations by using a Python shell in the
+virtual environment:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=$,&gt;&gt;&gt;"&gt;&lt;span class="gp"&gt;(venv) prj $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;python
+&lt;span class="go"&gt;Python 3.11.4 (main, Jun 26 2023, 16:06:57) [GCC 10.2.1 20210110] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;from amaranth import &lt;span class="k"&gt;*&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;Signal
+&lt;span class="go"&gt;&amp;lt;class 'amaranth.hdl.ast.Signal'&amp;gt;
+&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;from amaranth_boards.icebreaker import &lt;span class="k"&gt;*&lt;/span&gt;
+&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;ICEBreakerPlatform
+&lt;span class="go"&gt;&amp;lt;class 'amaranth_boards.icebreaker.ICEBreakerPlatform'&amp;gt;
+&lt;/span&gt;&lt;span class="gp"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/section&gt;
+&lt;section id="yosys"&gt;
+&lt;h2&gt;Yosys &lt;a href="#yosys" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Clone the &lt;a href="https://github.com/yosyshq/yosys"&gt;Yosys repo&lt;/a&gt; and read its README. &lt;a href="https://github.com/yosyshq/yosys#building-from-source"&gt;§ Building from Source&lt;/a&gt; tells you
+which packages from the package manager it needs.&lt;/p&gt;
+&lt;p&gt;By default, Yosys will install into &lt;code&gt;/usr/local&lt;/code&gt;, but we’ll override it to use
+&lt;code&gt;~/.local&lt;/code&gt; instead. We do this by setting the &lt;code&gt;PREFIX&lt;/code&gt; variable, and
+importantly, we need it set for the build step too, not only install. Otherwise,
+the &lt;code&gt;yosys-config&lt;/code&gt; helper that gets installed will report the wrong values.&lt;/p&gt;
+&lt;p&gt;Yosys’s Makefile will include &lt;code&gt;Makefile.conf&lt;/code&gt; if it exists; we’ll put it in
+there so we can’t forget, and don’t have to stash Makefile changes when we pull
+the latest. Then we build in parallel and install:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=%20yosys%20$"&gt;&lt;span class="gp"&gt;(venv) yosys $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s1"&gt;'PREFIX = $(HOME)/.local'&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; Makefile.conf
+&lt;span class="gp"&gt;(venv) yosys $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make &lt;span class="nt"&gt;-j8&lt;/span&gt;
+&lt;span class="go"&gt;[Makefile.conf] PREFIX = $(HOME)/.local
+[  0%] Building kernel/version_2310a0ea9.cc
+[  0%] Building kernel/driver.o
+[  0%] Building techlibs/common/simlib_help.inc
+[  0%] Building techlibs/common/simcells_help.inc
+[  1%] Building kernel/rtlil.o
+
+[... lots of output ...]
+
+[ 94%] ABC: `` Compiling: /src/bdd/llb/llb4Nonlin.c
+[ 94%] ABC: `` Compiling: /src/bdd/llb/llb4Sweep.c
+[ 94%] ABC: `` Building binary: abc-1de4eaf
+[100%] Building yosys-abc
+
+  Build successful.
+
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) yosys $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make &lt;span class="nb"&gt;install&lt;/span&gt;
+&lt;span class="go"&gt;[Makefile.conf] PREFIX = $(HOME)/.local
+mkdir -p /home/charlotte/.local/bin
+cp yosys yosys-config yosys-abc yosys-filterlib yosys-smtbmc yosys-witness /home/charlotte/.local/bin
+strip -S /home/charlotte/.local/bin/yosys
+strip /home/charlotte/.local/bin/yosys-abc
+strip /home/charlotte/.local/bin/yosys-filterlib
+mkdir -p /home/charlotte/.local/share/yosys
+cp -r share/. /home/charlotte/.local/share/yosys/.
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) yosys $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You may need to add &lt;code&gt;~/.local/bin&lt;/code&gt; to your &lt;code&gt;PATH&lt;/code&gt;. Test the installed binary.
+Check the &lt;code&gt;yosys-config&lt;/code&gt; output:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;(venv) yosys $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;yosys-config &lt;span class="nt"&gt;--datdir&lt;/span&gt;
+&lt;span class="go"&gt;/home/charlotte/.local/share/yosys
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) yosys $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/section&gt;
+&lt;section id="project-icestorm"&gt;
+&lt;h2&gt;Project IceStorm &lt;a href="#project-icestorm" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Before &lt;a href="https://github.com/YosysHQ/nextpnr"&gt;nextpnr&lt;/a&gt;, we need the technology-specific support. That’s this step.&lt;/p&gt;
+&lt;p&gt;Clone &lt;a href="https://github.com/YosysHQ/icestorm"&gt;Project IceStorm&lt;/a&gt;. There’s no &lt;code&gt;Makefile.conf&lt;/code&gt; here, so edit the first
+line of &lt;code&gt;config.mk&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-diff"&gt;&lt;span class="gd"&gt;-PREFIX ?= /usr/local
+&lt;/span&gt;&lt;span class="gi"&gt;+PREFIX = $(HOME)/.local&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Install the libftdi development package; it’s &lt;code&gt;libftdi-dev&lt;/code&gt; on Debian and
+&lt;code&gt;libftdi&lt;/code&gt; in Homebrew.&lt;/p&gt;
+&lt;p&gt;Now compile and install Project IceStorm. I’ve avoided compiling in parallel as
+its build script sometimes gets ahead of itself:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=icestorm%20$"&gt;&lt;span class="gp"&gt;(venv) icestorm $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make
+&lt;span class="go"&gt;make -C icebox all
+make[1]: Entering directory '/home/charlotte/icestorm/icebox'
+python3 icebox_chipdb.py -3 &amp;gt; chipdb-384.new
+mv chipdb-384.new chipdb-384.txt
+
+[... lots of output ...]
+
+cc -MD -MP -O2  -Wall -std=c99 -I/home/charlotte/.local/include    -c -o mpsse.o mpsse.c
+cc -o iceprog  iceprog.o mpsse.o -lm -lstdc++ -lftdi
+make[1]: Leaving directory '/home/charlotte/icestorm/iceprog'
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) icestorm $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make &lt;span class="nb"&gt;install&lt;/span&gt;
+&lt;span class="go"&gt;for dir in icebox icepack icemulti icepll icebram icetime iceprog; do \
+        make -C $dir install || exit; \
+done
+make[1]: Entering directory '/home/charlotte/icestorm/icebox'
+mkdir -p /home/charlotte/.local/share/icebox
+
+[... lots of output ...]
+
+mkdir -p /home/charlotte/.local/bin
+cp iceprog /home/charlotte/.local/bin/iceprog
+make[1]: Leaving directory '/home/charlotte/icestorm/iceprog'
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) icestorm $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you have an iCEBreaker, at this stage you can try using &lt;code&gt;iceprog&lt;/code&gt; to say hi:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;(venv) icestorm $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;iceprog &lt;span class="nt"&gt;-t&lt;/span&gt;
+&lt;span class="go"&gt;init..
+cdone: high
+reset..
+cdone: low
+flash ID: 0xEF 0x40 0x18 0x00
+cdone: high
+Bye.
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) icestorm $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/section&gt;
+&lt;section id="troubleshooting"&gt;
+&lt;h3&gt;Troubleshooting &lt;a href="#troubleshooting" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;The following error indicates the device wasn’t found by &lt;code&gt;iceprog&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;init..
+Can't find iCE FTDI USB device (vendor_id 0x0403, device_id 0x6010 or 0x6014).
+ABORT.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;macOS users, check System Information → USB. If you don’t see the iCEBreaker
+listed, check your connections and consider trying a different USB cable,
+adaptor or hub, as appropriate.&lt;/p&gt;
+&lt;p&gt;Linux users, check &lt;code&gt;lsusb&lt;/code&gt;. If you can see something with ID &lt;code&gt;0403:6010&lt;/code&gt;, that’s
+good. If it identifies itself as an iCEBreaker, even better. You may need a
+&lt;a href="https://opensource.com/article/18/11/udev"&gt;udev&lt;/a&gt; rule to ensure the device node is writable by your user.&lt;/p&gt;
+&lt;p&gt;Create the file &lt;code&gt;/etc/udev/rules.d/53-lattice-ftdi.rules&lt;/code&gt; with the following
+content:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", MODE="0660", GROUP="plugdev", TAG+="uaccess"
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This will make any device with ID &lt;code&gt;0403:6010&lt;/code&gt; writable by the group &lt;code&gt;plugdev&lt;/code&gt;.
+Check the output of the &lt;code&gt;id&lt;/code&gt; command to verify your user groups:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;(venv) icestorm $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt; &lt;span class="nt"&gt;-Gn&lt;/span&gt;
+&lt;span class="go"&gt;charlotte adm sudo plugdev
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) icestorm $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If &lt;code&gt;plugdev&lt;/code&gt; is listed somewhere, you’re good. Otherwise, add yourself to the
+group. (e.g. &lt;code&gt;sudo adduser $(whoami) plugdev&lt;/code&gt;) After this, unplug and replug for
+the new rule to take effect.&lt;/p&gt;
+&lt;p&gt;WSL 2 users (or recalcitrant Windows users) should also consult the
+footnote&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-wslice" id="fnref-wslice" data-footnote-ref=""&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="nextpnr"&gt;
+&lt;h2&gt;nextpnr &lt;a href="#nextpnr" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Ensure Project IceStorm (&lt;a href="#project-icestorm"&gt;↴&lt;/a&gt;) is installed first.&lt;/p&gt;
+&lt;p&gt;Fetch &lt;a href="https://github.com/YosysHQ/nextpnr"&gt;nextpnr&lt;/a&gt; and install the appropriate &lt;a href="https://github.com/YosysHQ/nextpnr#prerequisites"&gt;§ Prerequisites&lt;/a&gt;. Then, check out
+the specific instructions for &lt;a href="https://github.com/YosysHQ/nextpnr#nextpnr-ice40"&gt;nextpnr-ice40&lt;/a&gt;. We’ll need to adapt them
+slightly.&lt;/p&gt;
+&lt;p&gt;We specify the iCE40 arch, the install prefix, the install prefix for Project
+IceStorm, the root directory for our active Python installation, and finally, a
+&lt;a href="https://duerrenberger.dev/blog/2021/08/04/understanding-rpath-with-cmake/"&gt;runtime search path&lt;/a&gt; to add to the final binary. This is because nextpnr
+will link against our Python install, but our Python install’s shared libraries
+aren’t on the &lt;a href="https://unix.stackexchange.com/a/22999/577154"&gt;system search path&lt;/a&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=nextpnr%20$,%20%20%20%20"&gt;&lt;span class="gp"&gt;(venv) nextpnr $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;cmake &lt;span class="nb"&gt;.&lt;/span&gt; &lt;span class="nt"&gt;-DARCH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;ice40 &lt;span class="se"&gt;\&lt;/span&gt;
+&lt;span class="gp"&gt;    &lt;/span&gt;&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="nt"&gt;-DCMAKE_INSTALL_PREFIX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;/.local &lt;span class="se"&gt;\&lt;/span&gt;
+&lt;span class="gp"&gt;    &lt;/span&gt;&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="nt"&gt;-DICESTORM_INSTALL_PREFIX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;/.local &lt;span class="se"&gt;\&lt;/span&gt;
+&lt;span class="gp"&gt;    &lt;/span&gt;&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="nt"&gt;-DPython3_ROOT_DIR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;asdf where python&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+&lt;span class="gp"&gt;    &lt;/span&gt;&lt;span class="w"&gt;             &lt;/span&gt;&lt;span class="nt"&gt;-DCMAKE_INSTALL_RPATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;asdf where python&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;/lib
+&lt;span class="go"&gt;-- Building with IPO
+-- Found Python3: /home/charlotte/.asdf/installs/python/3.11.4/bin/python3 (found suitable version "3.11.4", minimum required is "3.5") found components: Interpreter
+-- Found Python3: /home/charlotte/.asdf/installs/python/3.11.4/include/python3.11 (found suitable version "3.11.4", minimum required is "3.5") found components: Development Development.Module Development.Embed
+-- Found Boost: /usr/include (found version "1.74.0") found components: filesystem program_options iostreams system thread regex chrono date_time atomic
+-- Found Boost: /usr/include (found version "1.74.0") found components: program_options filesystem system
+-- Configuring architecture: ice40
+-- Enabled iCE40 devices: 384;1k;5k;u4k;8k
+-- Found Python3: /home/charlotte/.asdf/installs/python/3.11.4/bin/python3 (found suitable version "3.11.4", minimum required is "3.5") found components: Interpreter
+-- IceStorm install prefix: /home/charlotte/.local
+-- icebox data directory: /home/charlotte/.local/share/icebox
+-- Using iCE40 chipdb: /home/charlotte/nextpnr/ice40/chipdb
+-- Configuring architecture: ecp5
+-- Enabled ECP5 devices: 25k;45k;85k
+-- Trellis install prefix: /home/charlotte/.local
+-- Trellis library directory: /usr/local/lib/trellis
+-- Trellis data directory: /home/charlotte/.local/share/trellis
+-- Using ECP5 chipdb: /home/charlotte/nextpnr/ecp5/chipdb
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/charlotte/nextpnr
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) nextpnr $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make &lt;span class="nt"&gt;-j8&lt;/span&gt;
+&lt;span class="go"&gt;[  2%] Generating chipdb/chipdb-384.bba
+[  2%] Building CXX object bba/CMakeFiles/bbasm.dir/main.cc.o
+[  4%] Generating chipdb/chipdb-1k.bba
+[  5%] Linking CXX executable bbasm
+
+[... lots of output ...]
+
+[ 97%] Building CXX object CMakeFiles/nextpnr-ice40.dir/ice40/pack.cc.o
+[ 98%] Building CXX object CMakeFiles/nextpnr-ice40.dir/ice40/pcf.cc.o
+[100%] Linking CXX executable nextpnr-ice40
+[100%] Built target nextpnr-ice40
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) nextpnr $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make &lt;span class="nb"&gt;install&lt;/span&gt;
+&lt;span class="go"&gt;[  7%] Built target chipdb-ice40-bbas
+[ 10%] Built target bbasm
+[ 17%] Built target chipdb-ice40-bins
+[ 32%] Built target chipdb-ice40
+[100%] Built target nextpnr-ice40
+Install the project...
+-- Install configuration: "Release"
+-- Installing: /home/charlotte/.local/bin/nextpnr-ice40
+-- Set runtime path of "/home/charlotte/.local/bin/nextpnr-ice40" to "/home/charlotte/.asdf/installs/python/3.11.4/lib"
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) nextpnr $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Test the installed binary to make sure it works.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;(venv) nextpnr $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;nextpnr-ice40
+&lt;span class="go"&gt;"nextpnr-ice40" -- Next Generation Place and Route (Version nextpnr-0.6-29-g54b20457)
+
+General options:
+  -h [ --help ]                         show help
+  -v [ --verbose ]                      verbose output
+  -q [ --quiet ]                        quiet mode, only errors and warnings
+                                        displayed
+  --Werror                              Turn warnings into errors
+  -l [ --log ] arg                      log file, all log messages are written
+                                        to this file regardless of -q
+
+[... lots of output ...]
+
+  --opt-timing                          run post-placement timing optimisation
+                                        pass (experimental)
+  --tmfuzz                              run path delay estimate fuzzer
+  --pcf-allow-unconstrained             don't require PCF to constrain all IO
+
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) nextpnr $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;At this point our Amaranth can now use our installed tooling to program the
+iCEBreaker. The board definitions we installed earlier can be executed directly
+to program a test blink gateware—doing this exercises the full toolchain.
+Verify:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=nextpnr%20$"&gt;&lt;span class="gp"&gt;(venv) nextpnr $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;python &lt;span class="nt"&gt;-m&lt;/span&gt; amaranth_boards.icebreaker
+&lt;span class="go"&gt;init..
+cdone: high
+reset..
+cdone: low
+flash ID: 0xEF 0x40 0x18 0x00
+file size: 104090
+erase 64kB sector at 0x000000..
+erase 64kB sector at 0x010000..
+programming..
+done.
+reading..
+VERIFY OK
+cdone: high
+Bye.
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) nextpnr $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/section&gt;
+&lt;section id="symbiyosys"&gt;
+&lt;h2&gt;SymbiYosys &lt;a href="#symbiyosys" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Formal_verification"&gt;Formal verification&lt;/a&gt; can be orchestrated with SymbiYosys. To get started with
+formal verification and Amaranth, have a look at &lt;a href="https://github.com/RobertBaruch/amaranth-exercises"&gt;Robert Baruch’s graded
+exercises for Amaranth HDL&lt;/a&gt;, which start with formal methods
+from the very first exercise. They use the tools we install here.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/YosysHQ/sby"&gt;SymbiYosys&lt;/a&gt; is a relatively simple frontend, so fetch the repo and install. It
+also has a Python dependency, &lt;code&gt;click&lt;/code&gt;. Check that &lt;code&gt;sby -h&lt;/code&gt; doesn’t give an
+error:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console?prompt=sby%20$"&gt;&lt;span class="gp"&gt;(venv) sby $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make &lt;span class="nv"&gt;PREFIX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;/.local &lt;span class="nb"&gt;install&lt;/span&gt;
+&lt;span class="go"&gt;mkdir -p /home/charlotte/.local/bin
+mkdir -p /home/charlotte/.local/share/yosys/python3
+cp sbysrc/sby_*.py /home/charlotte/.local/share/yosys/python3/
+sed -e 's|##yosys-program-prefix##|"''"|' &amp;lt; sbysrc/sby_core.py &amp;gt; /home/charlotte/.local/share/yosys/python3/sby_core.py
+sed 's|##yosys-sys-path##|sys.path += [os.path.dirname(__file__) + p for p in ["/share/python3", "/../share/yosys/python3"]]|;' &amp;lt; sbysrc/sby.py &amp;gt; /home/charlotte/.local/bin/sby
+chmod +x /home/charlotte/.local/bin/sby
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) sby $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;pip &lt;span class="nb"&gt;install &lt;/span&gt;click
+&lt;span class="go"&gt;Collecting click
+  Using cached click-8.1.3-py3-none-any.whl (96 kB)
+Installing collected packages: click
+Successfully installed click-8.1.3
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) sby $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;sby &lt;span class="nt"&gt;-h&lt;/span&gt;
+&lt;span class="go"&gt;usage: sby [options] [&amp;lt;jobname&amp;gt;.sby [tasknames] | &amp;lt;dirname&amp;gt;]
+
+positional arguments:
+  &amp;lt;jobname&amp;gt;.sby | &amp;lt;dirname&amp;gt;
+
+[... lots of output ...]
+
+  --init-config-file INIT_CONFIG_FILE
+                        create a default .sby config file
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) sby $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Check &lt;code&gt;sby -h&lt;/code&gt; doesn’t give an error.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="z3"&gt;
+&lt;h2&gt;Z3 &lt;a href="#z3" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;a href="https://github.com/Z3Prover/z3"&gt;Z3&lt;/a&gt; is a &lt;a href="https://en.wikipedia.org/wiki/Automated_theorem_proving"&gt;theorem prover&lt;/a&gt; — it does the heavy lifting of formal verification.
+Clone the repo; we’re going to follow the &lt;a href="https://github.com/Z3Prover/z3/blob/master/README-CMake.md"&gt;CMake instructions&lt;/a&gt;.  The defaults
+are all good, except for the install prefix:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="gp"&gt;(venv) z3 $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;mkdir &lt;/span&gt;build
+&lt;span class="gp"&gt;(venv) z3 $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;cd &lt;/span&gt;build
+&lt;span class="gp"&gt;(venv) build $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;cmake .. &lt;span class="nt"&gt;-DCMAKE_INSTALL_PREFIX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;/.local
+&lt;span class="go"&gt;-- The CXX compiler identification is GNU 12.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Z3 version 4.12.3.0
+
+[... lots of output ...]
+
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/charlotte/z3/build
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) build $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make &lt;span class="nt"&gt;-j8&lt;/span&gt;
+&lt;span class="go"&gt;[  0%] Building CXX object src/util/CMakeFiles/util.dir/approx_set.cpp.o
+[  0%] Building CXX object src/util/CMakeFiles/util.dir/approx_nat.cpp.o
+[  0%] Building CXX object src/util/CMakeFiles/util.dir/debug.cpp.o
+
+[... lots of output ...]
+
+[ 98%] Linking CXX shared library ../libz3.so
+[100%] Linking CXX executable ../../z3
+[100%] Built target shell
+[100%] Built target libz3
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) build $&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;make &lt;span class="nb"&gt;install&lt;/span&gt;
+&lt;span class="go"&gt;[  6%] Built target util
+[  8%] Built target params
+[  9%] Built target polynomial
+[  9%] Built target automata
+
+[... lots of output ...]
+
+-- Installing: /home/charlotte/.local/include/z3_spacer.h
+-- Installing: /home/charlotte/.local/include/z3_version.h
+-- Installing: /home/charlotte/.local/bin/z3
+&lt;/span&gt;&lt;span class="gp"&gt;(venv) build $&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Done.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="overview"&gt;
+&lt;h2&gt;Overview &lt;a href="#overview" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;You’re now ready to write and deploy gateware, with a toolchain selected, built
+and installed by yourself in a self-contained and repeatable way.&lt;/p&gt;
+&lt;p&gt;There are many ways to pivot from here.&lt;/p&gt;
+&lt;h5&gt;You need a different Python version.&lt;/h5&gt;
+&lt;p&gt;&lt;code&gt;asdf&lt;/code&gt; and virtual environments make this easy.&lt;/p&gt;
+&lt;h5&gt;You want to understand Amaranth better.&lt;/h5&gt;
+&lt;p&gt;You can modify your editable install directly, adding print debugging.&lt;/p&gt;
+&lt;h5&gt;You need to write pure Verilog.&lt;/h5&gt;
+&lt;p&gt;You can drive Yosys yourself.&lt;/p&gt;
+&lt;h5&gt;You want to understand decisions made by Yosys better.&lt;/h5&gt;
+&lt;p&gt;You can step-through debug Yosys: run your Amaranth build once, then invoke
+Yosys with your debugger of choice using the arguments from the generated
+&lt;code&gt;build/build_top.sh&lt;/code&gt;.&lt;/p&gt;
+&lt;h5&gt;You need to target a different family of boards.&lt;/h5&gt;
+&lt;p&gt;nextpnr &lt;a href="https://github.com/YosysHQ/nextpnr#readme"&gt;supports&lt;/a&gt; a range of architectures.&lt;/p&gt;
+&lt;h5&gt;You want to use a different solver with SymbiYosys.&lt;/h5&gt;
+&lt;p&gt;If it’s &lt;a href="https://symbiyosys.readthedocs.io/en/latest/install.html#recommended-components"&gt;supported&lt;/a&gt; and on your &lt;code&gt;PATH&lt;/code&gt;, it’ll work.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section class="footnotes" data-footnotes="" id="footnotes"&gt;&lt;h2&gt;Footnotes &lt;a href="#footnotes" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#scope" aria-hidden="true" title="Back to scope" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li id="fn-baby"&gt;
+&lt;p&gt;&lt;em&gt;baby’s first gateware&lt;/em&gt;, in fact. &lt;a href="#fnref-baby" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="1" aria-label="Back to reference 1"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn-windows"&gt;
+&lt;ul&gt;
+&lt;li&gt;Lots of random things are a little bit broken.&lt;/li&gt;
+&lt;li&gt;Building Yosys is certainly achievable but &lt;a href="https://github.com/YosysHQ/yosys/blob/2310a0ea9a61ed14d2769f01283a5a7590cbe558/guidelines/Windows"&gt;you simply don’t wanna&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;
+&lt;em&gt;Everything runs slower&lt;/em&gt;. Everything. Git runs slower. Python runs slower.
+Batch scripts run slower. Yosys runs slower. &lt;code&gt;iceprog&lt;/code&gt; communicates
+(much!) slower.&lt;/li&gt;
+&lt;li&gt;Think you can fix some of this by using MSYS2 or Cygwin? Now you have two
+problems.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There’s more that I’ve decided was better left forgotten. &lt;a href="#fnref-windows" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="2" aria-label="Back to reference 2"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn-wsl"&gt;
+&lt;p&gt;tl;dr: use your Linux user home directory, not your Windows user one; if
+CMake takes forever during configure, check if your &lt;code&gt;PATH&lt;/code&gt; is full of
+&lt;code&gt;/mnt/...&lt;/code&gt; — if it is, it’s probably searching your Windows partition very
+slowly (disable &lt;a href="https://learn.microsoft.com/en-us/windows/wsl/wsl-config#interop-settings"&gt;&lt;code&gt;interop.appendWindowsPath&lt;/code&gt;&lt;/a&gt; or modify your &lt;code&gt;PATH&lt;/code&gt; just for
+configure); when it comes time to flash your board, follow the guide to
+&lt;a href="https://learn.microsoft.com/en-us/windows/wsl/connect-usb"&gt;Connect USB devices&lt;/a&gt; using &lt;a href="https://github.com/dorssel/usbipd-win"&gt;usbipd-win&lt;/a&gt;. Don’t mind the scary warning on
+the guide: I didn’t have to recompile my kernel even on Windows 10. &lt;a href="#fnref-wsl" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="3" aria-label="Back to reference 3"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn-wslice"&gt;
+&lt;p&gt;Firstly, create (or edit) the file &lt;code&gt;/etc/wsl.conf&lt;/code&gt; and ensure you
+have the following stanza (or know what you’re doing already):&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-ini"&gt;&lt;span class="nn"&gt;[boot]&lt;/span&gt;
+&lt;span class="py"&gt;command&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="s"&gt;"service udev restart"&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Run &lt;code&gt;sudo service udev restart&lt;/code&gt; to get udev going immediately. You can
+&lt;code&gt;usbipd wsl detach -i 0403:6010&lt;/code&gt; and then &lt;code&gt;attach&lt;/code&gt; again instead of
+physically messing around with cables.&lt;/p&gt;
+&lt;p&gt;This likely only applies to Windows Steelman Enthusiasts, but you &lt;em&gt;may&lt;/em&gt; also
+need to use &lt;a href="https://zadig.akeo.ie/"&gt;Zadig&lt;/a&gt;. Use the WinUSB driver. Check “List All Devices” in the
+options menu. You should see two entries that correspond to the iCEBreaker —
+“Interface 0” and “Interface 1” — and they might identify themselves as the
+iCEBreaker, or something less obvious (like “Dual RS232-HS”). Make sure you
+use the same driver for both. When in doubt, unplug and replug. &lt;a href="#fnref-wslice" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="4" aria-label="Back to reference 4"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</content>
+  </entry>
+</feed>
+
