@@ -13,6 +13,6 @@ Hiya!
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
 * Slightly underdone [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
 
-I can be reached at `amelia@` this domain.
+I can be reached at `ashe@` this domain.
 
 <div style="clear: both;"></div>
