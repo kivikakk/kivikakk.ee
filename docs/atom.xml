@@ -4,7 +4,7 @@
  <title>kivikakk.ee</title>
  <link href="/atom.xml" rel="self"/>
  <link href="https://kivikakk.ee/"/>
- <updated>2024-05-02T14:47:58+03:00</updated>
+ <updated>2024-05-03T09:48:09+03:00</updated>
  <id>https://kivikakk.ee</id>
  <author>
    <name>Asherah Connor</name>
@@ -12,6 +12,20 @@
  </author>
 
  
+ 
+ <entry>
+   <title>Post-vaccination advice by country</title>
+   <link href="https://kivikakk.ee/eesti/2024/05/03/post-vaccination-advice-by-country/"/>
+   <updated>2024-05-03T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/eesti/2024/05/03/post-vaccination-advice-by-country</id>
+   <content type="html">&lt;p&gt;As dispensed by the vaccinating staff:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Australia: Now, no heavy lifting for a few hours!&lt;/li&gt;
+  &lt;li&gt;Estonia: Mm.. probably better not to go in sauna today.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+ </entry>
  
  <entry>
    <title>Volbripäev</title>
