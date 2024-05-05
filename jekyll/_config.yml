@@ -47,7 +47,10 @@ nav:
   - title: "About"
     url: "/about"
 
-  - title: "Code"
+  - title: "GitHub"
+    url: "https://github.com/kivikakk"
+
+  - title: "Forge"
     url: "https://hrzn.ee/kivikakk"
 
   - title: "Index"
