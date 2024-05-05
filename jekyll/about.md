@@ -9,7 +9,8 @@ title: About
 
 Hiya!
 
-* [hrzn forge](https://hrzn.ee/kivikakk)
+* [GitHub](https://github.com/kivikakk)
+* [Forge](https://hrzn.ee/kivikakk)
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
 * Slightly underdone [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
 
