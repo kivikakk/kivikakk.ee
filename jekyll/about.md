@@ -9,6 +9,7 @@ title: About
 
 Hiya!
 
+* [Notes on digital design](https://kivikakk.ee/notes/)
 * [GitHub](https://github.com/kivikakk)
 * [Forge](https://hrzn.ee/kivikakk)
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
