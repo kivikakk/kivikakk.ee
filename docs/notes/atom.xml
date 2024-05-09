@@ -2,13 +2,109 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://kivikakk.ee/notes/">
   <id>https://kivikakk.ee/notes/</id>
   <title>lottia notes</title>
-  <updated>2024-01-02T04:38:00Z</updated>
+  <updated>2024-05-09T14:45:00Z</updated>
   <link rel="alternate" href="https://kivikakk.ee/notes/" type="text/html"/>
   <link rel="self" href="https://kivikakk.ee/notes/atom.xml" type="application/atom+xml"/>
   <author>
     <name>Asherah Connor</name>
     <uri>https://kivikakk.ee/notes</uri>
   </author>
+  <entry>
+    <id>tag:kivikakk.ee,2024-05-09:/notes/0007-amaranth-to-chisel.html</id>
+    <title type="html">Amaranth to Chisel</title>
+    <published>2024-05-09T14:45:00Z</published>
+    <updated>2024-05-09T14:45:00Z</updated>
+    <link rel="alternate" href="https://kivikakk.ee/notes/0007-amaranth-to-chisel.html" type="text/html"/>
+    <content type="html">&lt;section id="top"&gt;
+&lt;p&gt;Adapted from &lt;a href="https://github.com/kivikakk/kalaturg"&gt;kalaturg’s README&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;My days of using Amaranth are over.&amp;nbsp;I don’t feel able — nor do I &lt;em&gt;want&lt;/em&gt; — to
+depend on something I’m not allowed(!)&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-lol" id="fnref-lol" data-footnote-ref=""&gt;1&lt;/a&gt;&lt;/sup&gt; to contribute to, so I need a way
+to continue on with my FPGA studies without it. I don’t really view just trying
+to cobble together Verilog as viable for me right now; I’m rather dependent on
+having a decent higher-level thing going, and I already feel all the wind sucked
+out of my sails from having to make any change whatsoever.&lt;/p&gt;
+&lt;p&gt;I’ve experimented with doing my own HDL using what I learned from working with
+and on Amaranth (and Yosys, which I’ll happily continue to depend on), but it’s
+way too much work. After surveying the scene, I’ve chosen &lt;a href="https://www.chisel-lang.org/"&gt;Chisel&lt;/a&gt;. Scala is not
+exactly my favourite, and this means really learning it properly, but y’know
+what? That’s how I felt about Python too, but I still did &lt;a href="https://github.com/amaranth-lang/amaranth/pull/830"&gt;some cursed stuff&lt;/a&gt;
+with it!&lt;/p&gt;
+&lt;p&gt;I plan to bootstrap my way out of this hole by creating a small component in
+Amaranth, workbench it using CXXRTL, then duplicating that component in Chisel,
+using the same CXXRTL workbench to test it. This way I’m staying connected to
+“doing useful/measurable stuff” in a way I know. I’m also furthering my own &lt;a href="https://github.com/kivikakk/eri"&gt;HDL
+experiments&lt;/a&gt; while I go, letting Amaranth and Chisel combine in my head.&lt;/p&gt;
+&lt;p&gt;Done so far:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Bring &lt;a href="https://github.com/kivikakk/hdx"&gt;&lt;code&gt;hdx&lt;/code&gt;&lt;/a&gt;, &lt;code&gt;rainhdx&lt;/code&gt;, and all their dependencies — including Amaranth
+— up to date.
+&lt;ul&gt;
+&lt;li&gt;New &lt;code&gt;abc&lt;/code&gt; revision.&lt;/li&gt;
+&lt;li&gt;Amaranth depends on a newer &lt;code&gt;pdm-backend&lt;/code&gt;, which I &lt;a href="https://github.com/kivikakk/hdx/commit/27c3609f5b90e97ed89ca11a7e5747d4b8d0d90b#diff-14a0b9fe455f18efa8eb5b66ab3f4818d6ef7c32"&gt;needed to
+package&lt;/a&gt; since it’s not in nixpkgs.&lt;/li&gt;
+&lt;li&gt;Had to unbreak rainhdx’s Nix, that last refactor was bad.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Add &lt;a href="https://github.com/kivikakk/hdx/commit/d52075e49ac05a7297b8ed8cd6cdd8a2808e72b0"&gt;basic cxxsim support&lt;/a&gt; to &lt;code&gt;rainhdx&lt;/code&gt;. This was mostly pulled from &lt;a href="https://github.com/kivikakk/i2c_obs"&gt;I²C, oh!
+Big stretch&lt;/a&gt;, which I maintain is impeccably named.
+&lt;ul&gt;
+&lt;li&gt;There was also the option to pull the Zig–CXXRTL support from &lt;a href="https://github.com/kivikakk/sh1107"&gt;sh1107&lt;/a&gt;, but
+the extra toolchain weight doesn’t feel like it helps me move any faster
+here.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;A basic &lt;a href="https://github.com/kivikakk/kalaturg/commit/cd7b97cfb697ac7def0d5d0689da9c03f403d3e0"&gt;UART echo&lt;/a&gt;, tested with Amaranth’s simulator.&lt;/li&gt;
+&lt;li&gt;A clone of the Python simulator &lt;a href="https://github.com/kivikakk/kalaturg/commit/d4c853a680c494fe9acc36aa91b83a7cd2d4d026"&gt;with CXXRTL&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Learn to do a &lt;a href="https://github.com/kivikakk/kalaturg/commit/35a791d597e0f31a2affda72a9de2c3f21161e36"&gt;very basic Chisel module with tests&lt;/a&gt; and Verilog
+output.&lt;/li&gt;
+&lt;li&gt;Build the Chisel module with CXXRTL and integrate it into the simulator —
+it’ll be very &lt;em&gt;wrong&lt;/em&gt;, but the key is the integration.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/kivikakk/kalaturg/commit/9d704aa2968ab3d287fe23ccfad2bdf26a88d5e3"&gt;Write a little unbuffered UART pair, test them, integrate. &lt;strong&gt;Done.&lt;/strong&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Extend the test case to exercise the Amaranth version’s buffers on TX/RX.&lt;/li&gt;
+&lt;li&gt;&lt;del&gt;Write a FIFO in Chisel and buffer the TX/RX.&lt;/del&gt;&lt;/li&gt;
+&lt;li&gt;Discover &lt;code&gt;Queue&lt;/code&gt; and learn how to use &lt;code&gt;Decoupled&lt;/code&gt; – use that in RX and TX.&lt;/li&gt;
+&lt;li&gt;Redo the base UART module using &lt;code&gt;Queue&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Test it on the iCEBreaker!&lt;/li&gt;
+&lt;li&gt;Mess around with SB_RGBA_DRV. Buffer the clock input with SB_GB.&lt;/li&gt;
+&lt;li&gt;Drop all the Python; it’s no longer necessary.&lt;/li&gt;
+&lt;li&gt;Actions CI for unit tests, cxxsim, synthesis.&lt;/li&gt;
+&lt;li&gt;Introduce a “Platform” notion to build separately for iCE40 and CXXRTL.&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="https://github.com/kivikakk/chryse"&gt;Split off the project-independent bits&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Redo the testbench to have the test unit as a blackboxed instance, rather than
+it driving everything through lines from the top. &lt;del&gt;Get it working first with
+Amaranth, then Chisel.&lt;/del&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;And now, 12 days later, I’m done! I have a fair bit more ground to re-cover in
+terms of (a) actually putting together more complex designs — I’ll start with
+an SPI OLED (maaaaaybe with a Zig counterpart, like &lt;a href="https://github.com/kivikakk/sh1107"&gt;sh1107&lt;/a&gt;) and then move onto
+a RISC-V core again — and (b) creating my own framework to iterate on
+different projects quickly, but I’ve moved really fast&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-minimal" id="fnref-minimal" data-footnote-ref=""&gt;2&lt;/a&gt;&lt;/sup&gt; and I’m quite
+happy with it.&lt;/p&gt;
+&lt;p&gt;It’s been interesting to decompose “HDL and digital design, as I learned it
+through Amaranth” — the way I write things has become a lot more fluent, a lot
+less “eighty stage FSM”, and I spend a lot more time looking at Verilog, which I
+think is a good thing right now. I grok a lot more of what’s under the covers,
+especially having to reimplement some of it.&lt;/p&gt;
+&lt;p&gt;I can re-archive all my Amaranth stuff again, now that I’ve finished leaning on
+it.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section class="footnotes" data-footnotes="" id="footnotes"&gt;&lt;h2&gt;Footnotes &lt;a href="#footnotes" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li id="fn-lol"&gt;
+&lt;p&gt;May it suffice to say: lol. &lt;a href="#fnref-lol" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="1" aria-label="Back to reference 1"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn-minimal"&gt;
+&lt;p&gt;With minimal tools! At the start of these 12 days I didn’t even have
+a desk, or an external monitor. Or a dev board! &lt;a href="#fnref-minimal" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="2" aria-label="Back to reference 2"&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</content>
+  </entry>
   <entry>
     <id>tag:kivikakk.ee,2024-01-02:/notes/0006-comrak-on-akkoma.html</id>
     <title type="html">Comrak on Akkoma</title>
