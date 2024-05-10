@@ -4,7 +4,7 @@
  <title>kivikakk.ee</title>
  <link href="/atom.xml" rel="self"/>
  <link href="https://kivikakk.ee/"/>
- <updated>2024-05-09T18:07:22+03:00</updated>
+ <updated>2024-05-10T10:22:59+03:00</updated>
  <id>https://kivikakk.ee</id>
  <author>
    <name>Asherah Connor</name>
@@ -12,6 +12,28 @@
  </author>
 
  
+ 
+ <entry>
+   <title>Digital design bash.org</title>
+   <link href="https://kivikakk.ee/2024/05/10/digital-design-bash-org/"/>
+   <updated>2024-05-10T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/2024/05/10/digital-design-bash-org</id>
+   <content type="html">&lt;p&gt;Identities changed to protect the innocent.&lt;/p&gt;
+
+&lt;p&gt;&lt;code style=&quot;font-family: monospace;&quot;&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: green&quot;&gt;pestopasta&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; How do you do 128bit memory buses and stuff like that&lt;br /&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: green&quot;&gt;pestopasta&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; Like what is going on in those 128 bits&lt;br /&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: orange&quot;&gt;Rice&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; uh, data that&apos;s being read from or written to memory?&lt;br /&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: orange&quot;&gt;Rice&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; What is the issue you&apos;re not understanding&lt;br /&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: green&quot;&gt;pestopasta&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&quot;opacity: 0.6&quot;&gt;@&lt;/span&gt;&lt;span style=&quot;color: orange&quot;&gt;Rice&lt;/span&gt; What is transferred over it&lt;br /&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: pink&quot;&gt;HamSandwich&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; data that&apos;s being read from or written to memory 👀&lt;br /&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: green&quot;&gt;pestopasta&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&quot;opacity: 0.6&quot;&gt;@&lt;/span&gt;&lt;span style=&quot;color: pink&quot;&gt;HamSandwich&lt;/span&gt; Yea. How do you manage 128 bits though. That&apos;s a lot&lt;br /&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: pink&quot;&gt;HamSandwich&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; They are written to and from caches via the cache controller, not the core. The core has a maximum of 32-bit access.&lt;br /&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: orange&quot;&gt;Rice&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&quot;opacity: 0.6&quot;&gt;@&lt;/span&gt;&lt;span style=&quot;color: green&quot;&gt;pestopasta&lt;/span&gt; ...the same way you handle 32 or 64 bits of data, just double or quadruple?&lt;br /&gt;
+&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: green&quot;&gt;pestopasta&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; I don&apos;t know what you mean. Is there a video explaining this?
+&lt;/code&gt;&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>Post-vaccination advice by country</title>
