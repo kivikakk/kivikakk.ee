@@ -11,7 +11,6 @@ Hiya!
 
 * [Notes on digital design](https://kivikakk.ee/notes/)
 * [GitHub](https://github.com/kivikakk)
-* [Forge](https://hrzn.ee/kivikakk)
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
 * Slightly underdone [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
 
