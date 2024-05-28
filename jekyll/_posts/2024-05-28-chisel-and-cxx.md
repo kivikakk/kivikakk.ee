@@ -5,8 +5,9 @@ categories:  ["digital"]
 ---
 
 I gave a lightning talk at last night's [Yosys Users Group] about combining
-Chisel and C++ with Yosys/CXXRTL. I think there'll be a recording of them that
-goes up on YouTube eventually? But here's my [slides] and transcript anyway.
+Chisel and <nobr>C++</nobr> with Yosys/CXXRTL. I think there'll be a recording
+of them that goes up on YouTube eventually? But here's my [slides] and
+transcript anyway.
 
 [Yosys Users Group]: https://blog.yosyshq.com/p/yosys-users-group/
 [slides]: https://f.hrzn.ee/chiselcxx.pdf
