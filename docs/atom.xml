@@ -4,7 +4,7 @@
  <title>kivikakk.ee</title>
  <link href="/atom.xml" rel="self"/>
  <link href="https://kivikakk.ee/"/>
- <updated>2024-05-28T17:28:54+03:00</updated>
+ <updated>2024-05-28T17:31:59+03:00</updated>
  <id>https://kivikakk.ee</id>
  <author>
    <name>Asherah Connor</name>
@@ -21,6 +21,8 @@
    <content type="html">&lt;p&gt;I gave a lightning talk at last night’s &lt;a href=&quot;https://blog.yosyshq.com/p/yosys-users-group/&quot;&gt;Yosys Users Group&lt;/a&gt; about combining
 Chisel and C++ with Yosys/CXXRTL. I think there’ll be a recording of them that
 goes up on YouTube eventually? But here’s my &lt;a href=&quot;https://f.hrzn.ee/chiselcxx.pdf&quot;&gt;slides&lt;/a&gt; and transcript anyway.&lt;/p&gt;
+
+&lt;p&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/post-img/chiselcxx/slides.001.jpeg&quot; alt=&quot;Chisel and C++, together at last. Yosys% speedrun. 2024.05.27 — @kivikakk&quot; /&gt;&lt;/p&gt;
 

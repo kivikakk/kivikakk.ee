@@ -11,6 +11,8 @@ goes up on YouTube eventually? But here's my [slides] and transcript anyway.
 [Yosys Users Group]: https://blog.yosyshq.com/p/yosys-users-group/
 [slides]: https://f.hrzn.ee/chiselcxx.pdf
 
+<a id="more"></a>
+
 ![Chisel and C++, together at last. Yosys% speedrun. 2024.05.27 — @kivikakk](/assets/post-img/chiselcxx/slides.001.jpeg)
 
 <!--more-->
