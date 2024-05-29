@@ -8,4 +8,3 @@ cd "$(dirname "$0")" || exit 1
 rsync -av --exclude .git --delete ./jekyll/_site/ docs/
 rsync -av --exclude .git --delete ./archive/ docs/archive/
 rsync -av --exclude .git --delete ./notes/ docs/notes/
-echo -n kivikakk.ee > docs/CNAME

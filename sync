@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -ex
+
+cd "$(dirname "$0")" || exit 1
+
+rsync -avz --delete docs/ aurea:~/www/kivikakk.ee/
