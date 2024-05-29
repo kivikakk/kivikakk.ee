@@ -22,8 +22,8 @@
 <meta property="og:title" content="Chisel and C++, together at last" />
 <meta name="author" content="Asherah Connor" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="I gave a lightning talk at last night’s Yosys Users Group about combining Chisel and C++ with Yosys/CXXRTL. I think there’ll be a recording of them that goes up on YouTube eventually? But here’s my slides and transcript anyway." />
-<meta property="og:description" content="I gave a lightning talk at last night’s Yosys Users Group about combining Chisel and C++ with Yosys/CXXRTL. I think there’ll be a recording of them that goes up on YouTube eventually? But here’s my slides and transcript anyway." />
+<meta name="description" content="I gave a lightning talk at last night’s Yosys Users Group about combining Chisel and C++ with Yosys/CXXRTL. I think there’ll be a recording of them that goes up on YouTube eventually? Here’s my slides; the transcript follows." />
+<meta property="og:description" content="I gave a lightning talk at last night’s Yosys Users Group about combining Chisel and C++ with Yosys/CXXRTL. I think there’ll be a recording of them that goes up on YouTube eventually? Here’s my slides; the transcript follows." />
 <link rel="canonical" href="https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/" />
 <meta property="og:url" content="https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/" />
 <meta property="og:site_name" content="kivikakk.ee" />
@@ -32,7 +32,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Chisel and C++, together at last" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Asherah Connor","url":"https://kivikakk.ee"},"dateModified":"2024-05-28T00:00:00+03:00","datePublished":"2024-05-28T00:00:00+03:00","description":"I gave a lightning talk at last night’s Yosys Users Group about combining Chisel and C++ with Yosys/CXXRTL. I think there’ll be a recording of them that goes up on YouTube eventually? But here’s my slides and transcript anyway.","headline":"Chisel and C++, together at last","mainEntityOfPage":{"@type":"WebPage","@id":"https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/"},"url":"https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Asherah Connor","url":"https://kivikakk.ee"},"dateModified":"2024-05-28T00:00:00+03:00","datePublished":"2024-05-28T00:00:00+03:00","description":"I gave a lightning talk at last night’s Yosys Users Group about combining Chisel and C++ with Yosys/CXXRTL. I think there’ll be a recording of them that goes up on YouTube eventually? Here’s my slides; the transcript follows.","headline":"Chisel and C++, together at last","mainEntityOfPage":{"@type":"WebPage","@id":"https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/"},"url":"https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/"}</script>
 <!-- End Jekyll SEO tag -->
 
 </head>
@@ -64,15 +64,18 @@
   <h1 class="post-title">Chisel and C++, together at last</h1>
   <time datetime="2024-05-28T00:00:00+03:00" class="post-date">28 May 2024</time>
   <p>I gave a lightning talk at last night’s <a href="https://blog.yosyshq.com/p/yosys-users-group/">Yosys Users Group</a> about combining
-Chisel and <nobr>C++</nobr> with Yosys/CXXRTL. I think there’ll be a recording
-of them that goes up on YouTube eventually? But here’s my <a href="https://f.hrzn.ee/chiselcxx.pdf">slides</a> and
-transcript anyway.</p>
+Chisel and <nobr>C++</nobr> with Yosys/CXXRTL. <del>I think there’ll be a recording
+of them that goes up on YouTube eventually?</del></p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/_-oqnf9gYuE?si=sOh9tujGCab9fHcZ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen=""></iframe>
+
+<p>Here’s my <a href="https://f.hrzn.ee/chiselcxx.pdf">slides</a>; the transcript follows.</p>
 
 <p><a id="more"></a></p>
 
-<p><img src="/assets/post-img/chiselcxx/slides.001.jpeg" alt="Chisel and C++, together at last. Yosys% speedrun. 2024.05.27 — @kivikakk" /></p>
-
 <!--more-->
+
+<p><img src="/assets/post-img/chiselcxx/slides.001.jpeg" alt="Chisel and C++, together at last. Yosys% speedrun. 2024.05.27 — @kivikakk" /></p>
 
 <p>Hi folks! I’m kivikakk, and I’m here to talk about connecting Chisel and C++,
 leaning on Yosys for all the hard work.</p>

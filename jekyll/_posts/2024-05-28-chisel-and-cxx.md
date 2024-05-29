@@ -5,18 +5,22 @@ categories:  ["digital"]
 ---
 
 I gave a lightning talk at last night's [Yosys Users Group] about combining
-Chisel and <nobr>C++</nobr> with Yosys/CXXRTL. I think there'll be a recording
-of them that goes up on YouTube eventually? But here's my [slides] and
-transcript anyway.
+Chisel and <nobr>C++</nobr> with Yosys/CXXRTL. ~~I think there'll be a recording
+of them that goes up on YouTube eventually?~~
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/_-oqnf9gYuE?si=sOh9tujGCab9fHcZ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 [Yosys Users Group]: https://blog.yosyshq.com/p/yosys-users-group/
+
+Here's my [slides]; the transcript follows.
+
 [slides]: https://f.hrzn.ee/chiselcxx.pdf
 
 <a id="more"></a>
 
-![Chisel and C++, together at last. Yosys% speedrun. 2024.05.27 — @kivikakk](/assets/post-img/chiselcxx/slides.001.jpeg)
-
 <!--more-->
+
+![Chisel and C++, together at last. Yosys% speedrun. 2024.05.27 — @kivikakk](/assets/post-img/chiselcxx/slides.001.jpeg)
 
 Hi folks! I’m kivikakk, and I’m here to talk about connecting Chisel and C++,
 leaning on Yosys for all the hard work.
