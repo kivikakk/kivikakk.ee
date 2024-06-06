@@ -4,7 +4,7 @@
  <title>kivikakk.ee</title>
  <link href="/atom.xml" rel="self"/>
  <link href="https://kivikakk.ee/"/>
- <updated>2024-06-06T20:22:09+03:00</updated>
+ <updated>2024-06-06T22:23:13+03:00</updated>
  <id>https://kivikakk.ee</id>
  <author>
    <name>Asherah Connor</name>
@@ -12,6 +12,15 @@
  </author>
 
  
+ 
+ <entry>
+   <title>Täna</title>
+   <link href="https://kivikakk.ee/eesti/2024/06/06/t%C3%A4na/"/>
+   <updated>2024-06-06T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/eesti/2024/06/06/täna</id>
+   <content type="html">&lt;p&gt;Täna oli saunapäev. ^_^&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>Chisel and C++, recorded at last</title>
