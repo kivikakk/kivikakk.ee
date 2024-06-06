@@ -5,6 +5,9 @@ set -ex
 cd "$(dirname "$0")" || exit 1
 
 (cd jekyll && bundle exec jekyll build --lsi)
-rsync -av --exclude .git --delete ./jekyll/_site/ docs/
-rsync -av --exclude .git --delete ./archive/ docs/archive/
+rm -rf docs/
+rsync -av --exclude .git --delete ./archive/ docs/
+mkdir docs/archive/
+mv docs/index.html docs/archive/
+rsync -av --exclude .git ./jekyll/_site/ docs/
 rsync -av --exclude .git --delete ./notes/ docs/notes/
