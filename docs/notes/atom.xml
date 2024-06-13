@@ -19,8 +19,8 @@
 &lt;p&gt;Adapted from &lt;a href="https://github.com/kivikakk/kalaturg"&gt;kalaturg’s README&lt;/a&gt;.&lt;/p&gt;
 &lt;hr&gt;
 &lt;p&gt;My days of using Amaranth are over.&amp;nbsp;I don’t feel able — nor do I &lt;em&gt;want&lt;/em&gt; — to
-depend on something I’m not allowed(!)&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-lol" id="fnref-lol" data-footnote-ref=""&gt;1&lt;/a&gt;&lt;/sup&gt; to contribute to, so I need a way
-to continue on with my FPGA studies without it. I don’t really view just trying
+depend on something I’m not allowed(!) to contribute to, so I need a way to
+continue on with my FPGA studies without it. I don’t really view just trying
 to cobble together Verilog as viable for me right now; I’m rather dependent on
 having a decent higher-level thing going, and I already feel all the wind sucked
 out of my sails from having to make any change whatsoever.&lt;/p&gt;
@@ -82,7 +82,7 @@ Amaranth, then Chisel.&lt;/del&gt;
 terms of (a) actually putting together more complex designs — I’ll start with
 an SPI OLED (maaaaaybe with a Zig counterpart, like &lt;a href="https://github.com/kivikakk/sh1107"&gt;sh1107&lt;/a&gt;) and then move onto
 a RISC-V core again — and (b) creating my own framework to iterate on
-different projects quickly, but I’ve moved really fast&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-minimal" id="fnref-minimal" data-footnote-ref=""&gt;2&lt;/a&gt;&lt;/sup&gt; and I’m quite
+different projects quickly, but I’ve moved really fast&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-minimal" id="fnref-minimal" data-footnote-ref=""&gt;1&lt;/a&gt;&lt;/sup&gt; and I’m quite
 happy with it.&lt;/p&gt;
 &lt;p&gt;It’s been interesting to decompose “HDL and digital design, as I learned it
 through Amaranth” — the way I write things has become a lot more fluent, a lot
@@ -94,12 +94,9 @@ it.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section class="footnotes" data-footnotes="" id="footnotes"&gt;&lt;h2&gt;Footnotes &lt;a href="#footnotes" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
 &lt;ol&gt;
-&lt;li id="fn-lol"&gt;
-&lt;p&gt;May it suffice to say: lol. &lt;a href="#fnref-lol" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="1" aria-label="Back to reference 1"&gt;↩&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
 &lt;li id="fn-minimal"&gt;
 &lt;p&gt;With minimal tools! At the start of these 12 days I didn’t even have
-a desk, or an external monitor. Or a dev board! &lt;a href="#fnref-minimal" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="2" aria-label="Back to reference 2"&gt;↩&lt;/a&gt;&lt;/p&gt;
+a desk, or an external monitor. Or a dev board! &lt;a href="#fnref-minimal" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="1" aria-label="Back to reference 1"&gt;↩&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
