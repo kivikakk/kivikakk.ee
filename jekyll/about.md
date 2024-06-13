@@ -12,6 +12,7 @@ Hiya!
 * [Notes on digital design](https://kivikakk.ee/notes/)
 * [GitHub](https://github.com/kivikakk)
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
+* [Instagram](https://www.instagram.com/kivitalya)
 * Slightly underdone [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
 
 I can be reached at `ashe@` this domain.
