@@ -4,7 +4,7 @@
  <title>kivikakk.ee</title>
  <link href="/atom.xml" rel="self"/>
  <link href="https://kivikakk.ee/"/>
- <updated>2024-06-13T15:23:38+03:00</updated>
+ <updated>2024-06-13T15:35:10+03:00</updated>
  <id>https://kivikakk.ee</id>
  <author>
    <name>Asherah Connor</name>
@@ -12,6 +12,15 @@
  </author>
 
  
+ 
+ <entry>
+   <title>fren</title>
+   <link href="https://kivikakk.ee/eesti/2024/06/13/fren/"/>
+   <updated>2024-06-13T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/eesti/2024/06/13/fren</id>
+   <content type="html">&lt;p&gt;&lt;img src=&quot;/assets/post-img/eesti/fren.jpg&quot; alt=&quot;low-exposure photograph of a cat walking along the ground&quot; /&gt;&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>Täna</title>
