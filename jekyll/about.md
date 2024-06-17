@@ -4,7 +4,7 @@ title: About
 ---
 
 <div class="about-photos">
-<img src="/assets/mia.png" title="Art by skpd__@Twitter">
+<img src="/assets/ashe.png" title="Art by skpd__@Twitter">
 </div>
 
 Hiya!
