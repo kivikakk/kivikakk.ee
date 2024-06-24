@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://kivikakk.ee/notes/">
   <id>https://kivikakk.ee/notes/</id>
   <title>lottia notes</title>
-  <updated>2024-05-09T14:45:00Z</updated>
+  <updated>2024-06-24T15:00:00Z</updated>
   <link rel="alternate" href="https://kivikakk.ee/notes/" type="text/html"/>
   <link rel="self" href="https://kivikakk.ee/notes/atom.xml" type="application/atom+xml"/>
   <author>
@@ -13,10 +13,11 @@
     <id>tag:kivikakk.ee,2024-05-09:/notes/0007-amaranth-to-chisel.html</id>
     <title type="html">Amaranth to Chisel</title>
     <published>2024-05-09T14:45:00Z</published>
-    <updated>2024-05-09T14:45:00Z</updated>
+    <updated>2024-06-24T15:00:00Z</updated>
     <link rel="alternate" href="https://kivikakk.ee/notes/0007-amaranth-to-chisel.html" type="text/html"/>
     <content type="html">&lt;section id="top"&gt;
-&lt;p&gt;Adapted from &lt;a href="https://github.com/kivikakk/kalaturg"&gt;kalaturg’s README&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;edit: A lot of the following doesn’t apply any more, though it’s all been very
+helpful in learning.&lt;/p&gt;
 &lt;hr&gt;
 &lt;p&gt;My days of using Amaranth are over.&amp;nbsp;I don’t feel able — nor do I &lt;em&gt;want&lt;/em&gt; — to
 depend on something I’m not allowed(!) to contribute to, so I need a way to
