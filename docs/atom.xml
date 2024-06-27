@@ -4,7 +4,7 @@
  <title>kivikakk.ee</title>
  <link href="/atom.xml" rel="self"/>
  <link href="https://kivikakk.ee/"/>
- <updated>2024-06-24T18:05:29+03:00</updated>
+ <updated>2024-06-27T12:57:47+03:00</updated>
  <id>https://kivikakk.ee</id>
  <author>
    <name>Asherah Connor</name>
@@ -12,6 +12,35 @@
  </author>
 
  
+ 
+ <entry>
+   <title>Python still surprises</title>
+   <link href="https://kivikakk.ee/2024/06/27/python-still-surprises/"/>
+   <updated>2024-06-27T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/2024/06/27/python-still-surprises</id>
+   <content type="html">&lt;p&gt;After the better part of 20 years working with Python, it still managed to
+surprise me today.&lt;/p&gt;
+
+&lt;p&gt;I’m so used to languages treating &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x += y&lt;/code&gt; et al. as pure sugar for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x = x + y&lt;/code&gt;
+that it skipped my mind that some don’t.&lt;/p&gt;
+
+&lt;p&gt;I’m not surprised that you &lt;em&gt;can&lt;/em&gt; override them separately in some languages (e.g.
+I simply assume this to be the case in C++, and on checking it turns out to
+be true — but that seems fair enough given the scope of the language), but I
+really am so accustomed to them being only sugar in Ruby that I assumed the same
+would hold, at least in effect, in Python.&lt;/p&gt;
+
+&lt;p&gt;Thus my surprise on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;some_list += x&lt;/code&gt; modifying &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;some_list&lt;/code&gt; in place (unlike
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;some_list = some_list + x&lt;/code&gt;), but once observed, I realised there’d be a
+separately-overridden operator function — namely &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;__iadd__&lt;/code&gt; — and so I
+figured it “had” to be that way.&lt;/p&gt;
+
+&lt;p&gt;Or did it? I then found myself assuming it’s because these operators can’t
+actually reassign the receiver, but in fact they can and do: the return value is
+what’s assigned to the LHS. So it’s just a matter of convention.&lt;/p&gt;
+
+</content>
+ </entry>
  
  <entry>
    <title>sint</title>
