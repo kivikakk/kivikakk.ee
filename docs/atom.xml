@@ -4,7 +4,7 @@
  <title>kivikakk.ee</title>
  <link href="/atom.xml" rel="self"/>
  <link href="https://kivikakk.ee/"/>
- <updated>2024-07-06T19:40:20+03:00</updated>
+ <updated>2024-07-06T19:53:27+03:00</updated>
  <id>https://kivikakk.ee</id>
  <author>
    <name>Asherah Connor</name>
@@ -12,13 +12,23 @@
  </author>
 
  
+ <entry>
+   <title>Time travel</title>
+   <updated>2024-07-06T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/2024/07/06/time-travel</id>
+    
+      <link href="https://lottia.net/notes/0008-time-travel.html"/>
+      <content type="html">The typical hypothetical “who are you coding for” example meant to shock you into writing better code is “yourself in six months”, but it turns out four is completely adequate to get lost.</content>
+    
+ </entry>
  
  <entry>
    <title>Python still surprises</title>
-   <link href="https://kivikakk.ee/2024/06/27/python-still-surprises/"/>
    <updated>2024-06-27T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/2024/06/27/python-still-surprises</id>
-   <content type="html">&lt;p&gt;After the better part of 20 years working with Python, it still managed to
+    
+     <link href="https://kivikakk.ee/2024/06/27/python-still-surprises/"/>
+     <content type="html">&lt;p&gt;After the better part of 20 years working with Python, it still managed to
 surprise me today.&lt;/p&gt;
 
 &lt;p&gt;I’m so used to languages treating &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x += y&lt;/code&gt; et al. as pure sugar for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x = x + y&lt;/code&gt;
@@ -40,27 +50,31 @@ actually reassign the receiver, but in fact they can and do: the return value is
 what’s assigned to the LHS. So it’s just a matter of convention.&lt;/p&gt;
 
 </content>
+    
  </entry>
  
  <entry>
    <title>sint</title>
-   <link href="https://kivikakk.ee/2024/06/22/sint/"/>
    <updated>2024-06-22T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/2024/06/22/sint</id>
-   <content type="html">&lt;p&gt;Notes.app, kell 08:03:&lt;/p&gt;
+    
+     <link href="https://kivikakk.ee/2024/06/22/sint/"/>
+     <content type="html">&lt;p&gt;Notes.app, kell 08:03:&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;my new theory is that satan Crept into this world through signed integers&lt;/p&gt;
 &lt;/blockquote&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>zxxrtl</title>
-   <link href="https://kivikakk.ee/digital/2024/06/17/zxxrtl/"/>
    <updated>2024-06-17T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/digital/2024/06/17/zxxrtl</id>
-   <content type="html">&lt;p&gt;I’ve been getting back into using &lt;a href=&quot;https://yosyshq.readthedocs.io/projects/yosys/en/latest/cmd/write_cxxrtl.html&quot;&gt;CXXRTL&lt;/a&gt; and &lt;a href=&quot;https://ziglang.org&quot;&gt;Zig&lt;/a&gt; together, so I’ve extracted
+    
+     <link href="https://kivikakk.ee/digital/2024/06/17/zxxrtl/"/>
+     <content type="html">&lt;p&gt;I’ve been getting back into using &lt;a href=&quot;https://yosyshq.readthedocs.io/projects/yosys/en/latest/cmd/write_cxxrtl.html&quot;&gt;CXXRTL&lt;/a&gt; and &lt;a href=&quot;https://ziglang.org&quot;&gt;Zig&lt;/a&gt; together, so I’ve extracted
 and rendered somewhat reusable the bindings I made to use them together!&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;https://github.com/kivikakk/zxxrtl&quot;&gt;zxxrtl&lt;/a&gt; uses CXXRTL’s C API to provide a somewhat idiomatic way to access,
@@ -130,42 +144,50 @@ edge detection, and just drives the simulation while optionally recording VCD:&l
 &lt;p&gt;Hopefully this is useful to someone else!&lt;/p&gt;
 
 </content>
+    
  </entry>
  
  <entry>
    <title>fren</title>
-   <link href="https://kivikakk.ee/eesti/2024/06/13/fren/"/>
    <updated>2024-06-13T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/eesti/2024/06/13/fren</id>
-   <content type="html">&lt;p&gt;&lt;img src=&quot;/assets/post-img/eesti/fren.jpg&quot; alt=&quot;low-exposure photograph of a cat walking along the ground&quot; /&gt;&lt;/p&gt;
+    
+     <link href="https://kivikakk.ee/eesti/2024/06/13/fren/"/>
+     <content type="html">&lt;p&gt;&lt;img src=&quot;/assets/post-img/eesti/fren.jpg&quot; alt=&quot;low-exposure photograph of a cat walking along the ground&quot; /&gt;&lt;/p&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Täna</title>
-   <link href="https://kivikakk.ee/eesti/2024/06/06/t%C3%A4na/"/>
    <updated>2024-06-06T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/eesti/2024/06/06/täna</id>
-   <content type="html">&lt;p&gt;Täna oli saunapäev. ^_^&lt;/p&gt;
+    
+     <link href="https://kivikakk.ee/eesti/2024/06/06/t%C3%A4na/"/>
+     <content type="html">&lt;p&gt;Täna oli saunapäev. ^_^&lt;/p&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Chisel and C++, recorded at last</title>
-   <link href="https://kivikakk.ee/digital/2024/05/29/chisel-and-cxx-recording/"/>
    <updated>2024-05-29T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/digital/2024/05/29/chisel-and-cxx-recording</id>
-   <content type="html">&lt;p&gt;Yay! &lt;a href=&quot;https://www.youtube.com/watch?v=_-oqnf9gYuE&quot;&gt;Here’s the recording&lt;/a&gt; for &lt;a href=&quot;https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/&quot;&gt;Chisel and C++, together at last&lt;/a&gt;.&lt;/p&gt;
+    
+     <link href="https://kivikakk.ee/digital/2024/05/29/chisel-and-cxx-recording/"/>
+     <content type="html">&lt;p&gt;Yay! &lt;a href=&quot;https://www.youtube.com/watch?v=_-oqnf9gYuE&quot;&gt;Here’s the recording&lt;/a&gt; for &lt;a href=&quot;https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/&quot;&gt;Chisel and C++, together at last&lt;/a&gt;.&lt;/p&gt;
 
 </content>
+    
  </entry>
  
  <entry>
    <title>Chisel and C++, together at last</title>
-   <link href="https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/"/>
    <updated>2024-05-28T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx</id>
-   <content type="html">&lt;p&gt;I gave a lightning talk at last night’s &lt;a href=&quot;https://blog.yosyshq.com/p/yosys-users-group/&quot;&gt;Yosys Users Group&lt;/a&gt; about combining
+    
+     <link href="https://kivikakk.ee/digital/2024/05/28/chisel-and-cxx/"/>
+     <content type="html">&lt;p&gt;I gave a lightning talk at last night’s &lt;a href=&quot;https://blog.yosyshq.com/p/yosys-users-group/&quot;&gt;Yosys Users Group&lt;/a&gt; about combining
 Chisel and &lt;nobr&gt;C++&lt;/nobr&gt; with Yosys/CXXRTL. &lt;del&gt;I think there’ll be a recording
 of them that goes up on YouTube eventually?&lt;/del&gt;&lt;/p&gt;
 
@@ -369,14 +391,16 @@ happened to pick. Thanks all.&lt;/p&gt;
   &lt;li&gt;&lt;a href=&quot;https://x.com/sawaratsuki1004&quot;&gt;C++ logo by Sawaratsuki&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Digital design bash.org</title>
-   <link href="https://kivikakk.ee/2024/05/10/digital-design-bash-org/"/>
    <updated>2024-05-10T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/2024/05/10/digital-design-bash-org</id>
-   <content type="html">&lt;p&gt;Identities changed to protect the innocent.&lt;/p&gt;
+    
+     <link href="https://kivikakk.ee/2024/05/10/digital-design-bash-org/"/>
+     <content type="html">&lt;p&gt;Identities changed to protect the innocent.&lt;/p&gt;
 
 &lt;p&gt;&lt;code style=&quot;font-family: monospace;&quot;&gt;
 &lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: green&quot;&gt;pestopasta&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; How do you do 128bit memory buses and stuff like that&lt;br /&gt;
@@ -391,50 +415,68 @@ happened to pick. Thanks all.&lt;/p&gt;
 &lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;color: green&quot;&gt;pestopasta&lt;/span&gt;&lt;span style=&quot;opacity: 0.6&quot;&gt;&amp;gt;&lt;/span&gt; I don&apos;t know what you mean. Is there a video explaining this?
 &lt;/code&gt;&lt;/p&gt;
 </content>
+    
+ </entry>
+ 
+ <entry>
+   <title>Amaranth to Chisel</title>
+   <updated>2024-05-09T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/2024/05/09/amaranth-to-chisel</id>
+    
+      <link href="https://lottia.net/notes/0007-amaranth-to-chisel.html"/>
+      <content type="html">Learning your second HDL is kinda like learning your second programming language. Or just learning your second language.</content>
+    
  </entry>
  
  <entry>
    <title>Post-vaccination advice by country</title>
-   <link href="https://kivikakk.ee/eesti/2024/05/03/post-vaccination-advice-by-country/"/>
    <updated>2024-05-03T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/eesti/2024/05/03/post-vaccination-advice-by-country</id>
-   <content type="html">&lt;p&gt;As dispensed by the vaccinating staff:&lt;/p&gt;
+    
+     <link href="https://kivikakk.ee/eesti/2024/05/03/post-vaccination-advice-by-country/"/>
+     <content type="html">&lt;p&gt;As dispensed by the vaccinating staff:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Australia: Now, no heavy lifting for a few hours!&lt;/li&gt;
   &lt;li&gt;Estonia: Mm.. probably better not to go in sauna today.&lt;/li&gt;
 &lt;/ul&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Volbripäev</title>
-   <link href="https://kivikakk.ee/eesti/2024/05/01/volbrip%C3%A4ev/"/>
    <updated>2024-05-01T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/eesti/2024/05/01/volbripäev</id>
-   <content type="html">&lt;p&gt;&lt;a href=&quot;https://kivikakk.ee/eesti/2024/04/29/naming/&quot;&gt;Never mind that&lt;/a&gt;, lol. I have to update my Estonian documents to match
+    
+     <link href="https://kivikakk.ee/eesti/2024/05/01/volbrip%C3%A4ev/"/>
+     <content type="html">&lt;p&gt;&lt;a href=&quot;https://kivikakk.ee/eesti/2024/04/29/naming/&quot;&gt;Never mind that&lt;/a&gt;, lol. I have to update my Estonian documents to match
 my Australian ones for my partner’s immigration, so back to Ashe it is!&lt;/p&gt;
 
 </content>
+    
  </entry>
  
  <entry>
    <title>Naming</title>
-   <link href="https://kivikakk.ee/eesti/2024/04/29/naming/"/>
    <updated>2024-04-29T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/eesti/2024/04/29/naming</id>
-   <content type="html">&lt;p&gt;Noting that, having moved (“returned!”) to Estonia, I’m going by Amelia (or Amy)
+    
+     <link href="https://kivikakk.ee/eesti/2024/04/29/naming/"/>
+     <content type="html">&lt;p&gt;Noting that, having moved (“returned!”) to Estonia, I’m going by Amelia (or Amy)
 again, since it’s the name on all my documentation here.
 &lt;a href=&quot;/assets/post-img/eesti/head-isu.jpg&quot; title=&quot;Photo of a power distribution box, with graffiti art of a very long, splotchy, odd looking dog, and the text &apos;Head isu! #14&apos; above it.&quot;&gt;Head isu!&lt;/a&gt;&lt;/p&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Continued nyõnks</title>
-   <link href="https://kivikakk.ee/eesti/2024/04/18/continued-nyonks/"/>
    <updated>2024-04-18T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/eesti/2024/04/18/continued-nyonks</id>
-   <content type="html">&lt;p&gt;It’s been a week since I last wrote. Some more little bits and pieces.&lt;/p&gt;
+    
+     <link href="https://kivikakk.ee/eesti/2024/04/18/continued-nyonks/"/>
+     <content type="html">&lt;p&gt;It’s been a week since I last wrote. Some more little bits and pieces.&lt;/p&gt;
 
 &lt;p&gt;The DPDR/dissociation has become even bit worse; somehow still keeping it
 together. Watching The Princess Bride with Annie last night helped.&lt;/p&gt;
@@ -518,14 +560,16 @@ The section header is &apos;With justice&apos;, and the options are &apos;Withou
   &lt;/li&gt;
 &lt;/ul&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Early nyõnks</title>
-   <link href="https://kivikakk.ee/eesti/2024/04/11/early-nyonks/"/>
    <updated>2024-04-11T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/eesti/2024/04/11/early-nyonks</id>
-   <content type="html">&lt;p&gt;We’ve been in the country a little over two days now. It’s been one of the most
+    
+     <link href="https://kivikakk.ee/eesti/2024/04/11/early-nyonks/"/>
+     <content type="html">&lt;p&gt;We’ve been in the country a little over two days now. It’s been one of the most
 serene times of my life, and even the flights from Australia seemed to pass in
 an instant.&lt;/p&gt;
 
@@ -619,14 +663,16 @@ opportunity.)&lt;/p&gt;
 there for a day, and then get back in time for an evening inspection of what
 might be our future home. Fingers crossed :)&lt;/p&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Literate pickle</title>
-   <link href="https://kivikakk.ee/2024/04/03/literate-pickle/"/>
    <updated>2024-04-03T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/2024/04/03/literate-pickle</id>
-   <content type="html">&lt;p&gt;I’ve been deleting hundreds of accounts and cleaning up many more while
+    
+     <link href="https://kivikakk.ee/2024/04/03/literate-pickle/"/>
+     <content type="html">&lt;p&gt;I’ve been deleting hundreds of accounts and cleaning up many more while
 preparing for the move, and I found I have an npm account with one (1)
 package, last published May 2012 (!): &lt;a href=&quot;https://www.npmjs.com/package/allium&quot;&gt;allium&lt;/a&gt;,
 a parser for the &lt;a href=&quot;https://en.wikipedia.org/wiki/Cucumber_(software)#Gherkin_language&quot;&gt;“Gherkin” syntax&lt;/a&gt;
@@ -636,14 +682,16 @@ used to define Cucumber BDD tests, back when that was all the rage.&lt;/p&gt;
 on GitHub Pages. That was long ago, but I figured it might be fun to look at
 again. And it is! Have look: &lt;a href=&quot;https://f.hrzn.ee/allium/&quot;&gt;https://f.hrzn.ee/allium/&lt;/a&gt;&lt;/p&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Eesti keele abilised</title>
-   <link href="https://kivikakk.ee/2024/03/25/eesti-keele-abilised/"/>
    <updated>2024-03-25T00:00:00+02:00</updated>
    <id>https://kivikakk.ee/2024/03/25/eesti-keele-abilised</id>
-   <content type="html">&lt;p&gt;Here’s a little tool I’ve made to help my partner and I while learning Estonian.
+    
+     <link href="https://kivikakk.ee/2024/03/25/eesti-keele-abilised/"/>
+     <content type="html">&lt;p&gt;Here’s a little tool I’ve made to help my partner and I while learning Estonian.
 Very much nothing special, but I’ll hopefully find more resources to add to it
 over time!&lt;/p&gt;
 
@@ -656,37 +704,103 @@ of the most-visited parts of it, presumably because the link broke at some
 point. I’ve just found its new canonical home, though, so I’ve updated the
 link!)&lt;/p&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>lottia notes</title>
-   <link href="https://kivikakk.ee/2024/01/03/lottia-notes/"/>
    <updated>2024-01-03T00:00:00+02:00</updated>
    <id>https://kivikakk.ee/2024/01/03/lottia-notes</id>
-   <content type="html">&lt;p&gt;I’ve been writing notes on FPGA/digital design and Nix over at
+    
+     <link href="https://kivikakk.ee/2024/01/03/lottia-notes/"/>
+     <content type="html">&lt;p&gt;I’ve been writing notes on FPGA/digital design and Nix over at
 &lt;a href=&quot;https://lottia.net/notes&quot;&gt;&lt;em&gt;lottia notes&lt;/em&gt;&lt;/a&gt;.&lt;/p&gt;
 </content>
+    
+ </entry>
+ 
+ <entry>
+   <title>Comrak on Akkoma</title>
+   <updated>2024-01-02T00:00:00+02:00</updated>
+   <id>https://kivikakk.ee/2024/01/02/comrak-on-akkoma</id>
+    
+      <link href="https://lottia.net/notes/0006-comrak-on-akkoma.html"/>
+      <content type="html">I've barely touched Elixir before. How hard could shoving a Rust dependency into it be?</content>
+    
+ </entry>
+ 
+ <entry>
+   <title>Jambalam</title>
+   <updated>2023-09-18T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/2023/09/18/jambalam</id>
+    
+      <link href="https://lottia.net/notes/0005-jambalam.html"/>
+      <content type="html">Have it your way.</content>
+    
+ </entry>
+ 
+ <entry>
+   <title>Happy birthday!</title>
+   <updated>2023-08-23T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/2023/08/23/happy-birthday</id>
+    
+      <link href="https://lottia.net/notes/0004-happy-birthday.html"/>
+      <content type="html">It's always your birthday!</content>
+    
+ </entry>
+ 
+ <entry>
+   <title>Nix revisited</title>
+   <updated>2023-07-15T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/2023/07/15/nix-revisited</id>
+    
+      <link href="https://lottia.net/notes/0003-nix-revisited.html"/>
+      <content type="html">An unsystematic collection of thoughts while adopting Nix.</content>
+    
+ </entry>
+ 
+ <entry>
+   <title>Untangling cycles</title>
+   <updated>2023-06-29T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/2023/06/29/untangling-cycles</id>
+    
+      <link href="https://lottia.net/notes/0002-untangling-cycles.html"/>
+      <content type="html">Wherein the author perceives time in multiple lights, simultaneously, and logic does too, but, uh, differently.</content>
+    
+ </entry>
+ 
+ <entry>
+   <title>Installing an HDL toolchain from source</title>
+   <updated>2023-06-27T00:00:00+03:00</updated>
+   <id>https://kivikakk.ee/2023/06/27/hdl-toolchain-source</id>
+    
+      <link href="https://lottia.net/notes/0001-hdl-toolchain-source.html"/>
+      <content type="html">A fairly detailed guide on building and installing a gateware toolchain in a self-contained and repeatable way.</content>
+    
  </entry>
  
  <entry>
    <title>DDR the second!!</title>
-   <link href="https://kivikakk.ee/2021/08/16/ddr-the-second/"/>
    <updated>2021-08-16T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/2021/08/16/ddr-the-second</id>
-   <content type="html">&lt;p&gt;Two weeks gets incremental improvements.&lt;/p&gt;
+    
+     <link href="https://kivikakk.ee/2021/08/16/ddr-the-second/"/>
+     <content type="html">&lt;p&gt;Two weeks gets incremental improvements.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/post-img/moreonenight2.jpg&quot; alt=&quot;More One Night score (AAA 97.13%)&quot; /&gt;
 &lt;img src=&quot;/assets/post-img/badapple2.jpg&quot; alt=&quot;Bad Apple!! score (AAA 97.57%)&quot; /&gt;
 &lt;img src=&quot;/assets/post-img/danceallnight2.jpg&quot; alt=&quot;DANCE ALL NIGHT score (AAA 98.55%)&quot; /&gt;&lt;/p&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>DDR</title>
-   <link href="https://kivikakk.ee/2021/08/02/ddr/"/>
    <updated>2021-08-02T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/2021/08/02/ddr</id>
-   <content type="html">&lt;p&gt;Not much to report lately.  DDR continues to be fun, though I think given these
+    
+     <link href="https://kivikakk.ee/2021/08/02/ddr/"/>
+     <content type="html">&lt;p&gt;Not much to report lately.  DDR continues to be fun, though I think given these
 timings I’m past due for replacing the control board in the pad so I can get
 better than 8ms resolution on steps.&lt;/p&gt;
 
@@ -694,23 +808,27 @@ better than 8ms resolution on steps.&lt;/p&gt;
 &lt;img src=&quot;/assets/post-img/badapple.jpg&quot; alt=&quot;Bad Apple!! score (AAA 96.65%)&quot; /&gt;
 &lt;img src=&quot;/assets/post-img/danceallnight.jpg&quot; alt=&quot;DANCE ALL NIGHT score (AAA 98.34%)&quot; /&gt;&lt;/p&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>You Got Me</title>
-   <link href="https://kivikakk.ee/2021/04/27/you-got-me/"/>
    <updated>2021-04-27T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/2021/04/27/you-got-me</id>
-   <content type="html">&lt;center&gt;&lt;iframe style=&quot;border: 0; width: 350px; height: 442px;&quot; src=&quot;https://bandcamp.com/EmbeddedPlayer/track=3439825641/size=large/bgcol=333333/linkcol=fe7eaf/tracklist=false/transparent=true/&quot; seamless=&quot;&quot;&gt;&lt;a href=&quot;https://tanoc.bandcamp.com/track/you-got-me&quot;&gt;You Got Me by USAO &amp;amp; Shandy Kubota&lt;/a&gt;&lt;/iframe&gt;&lt;/center&gt;
+    
+     <link href="https://kivikakk.ee/2021/04/27/you-got-me/"/>
+     <content type="html">&lt;center&gt;&lt;iframe style=&quot;border: 0; width: 350px; height: 442px;&quot; src=&quot;https://bandcamp.com/EmbeddedPlayer/track=3439825641/size=large/bgcol=333333/linkcol=fe7eaf/tracklist=false/transparent=true/&quot; seamless=&quot;&quot;&gt;&lt;a href=&quot;https://tanoc.bandcamp.com/track/you-got-me&quot;&gt;You Got Me by USAO &amp;amp; Shandy Kubota&lt;/a&gt;&lt;/iframe&gt;&lt;/center&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>MAX 300</title>
-   <link href="https://kivikakk.ee/2021/04/24/max-300/"/>
    <updated>2021-04-24T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/2021/04/24/max-300</id>
-   <content type="html">&lt;p&gt;&lt;a href=&quot;https://remywiki.com/MAX_300&quot;&gt;MAX 300&lt;/a&gt; was the first&lt;sup id=&quot;fnref:sakura&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:sakura&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt; level 10
+    
+     <link href="https://kivikakk.ee/2021/04/24/max-300/"/>
+     <content type="html">&lt;p&gt;&lt;a href=&quot;https://remywiki.com/MAX_300&quot;&gt;MAX 300&lt;/a&gt; was the first&lt;sup id=&quot;fnref:sakura&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:sakura&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt; level 10
 song I cleared at the arcade.  I learned to play DDR with my older brother; I
 distinctly recall the sensation of finally being better than him at a
 game—whether it was Descent, StarCraft, anything, he always had such a lead.&lt;/p&gt;
@@ -740,14 +858,16 @@ for clearing MAX&lt;nobr&gt; &lt;/nobr&gt;300 again.  My scores are &lt;em&gt;mu
   &lt;/ol&gt;
 &lt;/div&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>As best we can tell, the pub is shut</title>
-   <link href="https://kivikakk.ee/2021/03/29/as-best-we-can-tell-the-pub-is-shut/"/>
    <updated>2021-03-29T00:00:00+03:00</updated>
    <id>https://kivikakk.ee/2021/03/29/as-best-we-can-tell-the-pub-is-shut</id>
-   <content type="html">&lt;p&gt;I was alerted by a commenter that it’s been more than a year, now, since this
+    
+     <link href="https://kivikakk.ee/2021/03/29/as-best-we-can-tell-the-pub-is-shut/"/>
+     <content type="html">&lt;p&gt;I was alerted by a commenter that it’s been more than a year, now, since this
 video dropped:&lt;/p&gt;
 
 &lt;center&gt;&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/83cEEyTuAMM&quot; title=&quot;YouTube video player&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;&lt;/center&gt;
@@ -830,14 +950,16 @@ from the most recent low 7-day average of ~900 in early March.&lt;/p&gt;
   &lt;/ol&gt;
 &lt;/div&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Knowing when to look past your code</title>
-   <link href="https://kivikakk.ee/2021/02/28/loader/"/>
    <updated>2021-02-28T00:00:00+02:00</updated>
    <id>https://kivikakk.ee/2021/02/28/loader</id>
-   <content type="html">&lt;p&gt;There’s a weird tension in programming — on the one hand, as you learn the
+    
+     <link href="https://kivikakk.ee/2021/02/28/loader/"/>
+     <content type="html">&lt;p&gt;There’s a weird tension in programming — on the one hand, as you learn the
 ropes, you (hopefully) learn very quickly that the problem is almost &lt;em&gt;always&lt;/em&gt;
 in your code, and not, say, the compiler, stdlib, kernel, etc.  This is usually
 very correct; the people who’ve worked on those things have many times the
@@ -1268,14 +1390,16 @@ great.  U-Boot is mature on many embedded platforms. &lt;a href=&quot;#fnref:wh
   &lt;/ol&gt;
 &lt;/div&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Inkplate done quick</title>
-   <link href="https://kivikakk.ee/2021/02/19/inkplate-done-quick/"/>
    <updated>2021-02-19T00:00:00+02:00</updated>
    <id>https://kivikakk.ee/2021/02/19/inkplate-done-quick</id>
-   <content type="html">&lt;p&gt;I recently received an &lt;a href=&quot;https://inkplate.io&quot;&gt;Inkplate&lt;/a&gt;, and while I’m in the
+    
+     <link href="https://kivikakk.ee/2021/02/19/inkplate-done-quick/"/>
+     <content type="html">&lt;p&gt;I recently received an &lt;a href=&quot;https://inkplate.io&quot;&gt;Inkplate&lt;/a&gt;, and while I’m in the
 middle of a few interesting projects already, I couldn’t let it sit there
 unused.  Until I get a longer chunk of time to turn it into something really
 nifty — maybe an embedded debugging helper of some kind — it can at least
@@ -1306,14 +1430,16 @@ and formats it into the display.&lt;/p&gt;
 display.&quot; /&gt;&lt;/p&gt;
 
 </content>
+    
  </entry>
  
  <entry>
    <title>DTB parser implementing notes</title>
-   <link href="https://kivikakk.ee/2021/02/13/dtb-parser-implementing-notes/"/>
    <updated>2021-02-13T00:00:00+02:00</updated>
    <id>https://kivikakk.ee/2021/02/13/dtb-parser-implementing-notes</id>
-   <content type="html">&lt;p&gt;Ever find yourself needing to implement a &lt;a href=&quot;https://devicetree-specification.readthedocs.io/en/latest/chapter5-flattened-format.html&quot;&gt;device tree
+    
+     <link href="https://kivikakk.ee/2021/02/13/dtb-parser-implementing-notes/"/>
+     <content type="html">&lt;p&gt;Ever find yourself needing to implement a &lt;a href=&quot;https://devicetree-specification.readthedocs.io/en/latest/chapter5-flattened-format.html&quot;&gt;device tree
 blob&lt;/a&gt;
 (aka FDT, flattened device tree) parser and want to save yourself some time?
 Learn from my mistakes!&lt;/p&gt;
@@ -1455,14 +1581,16 @@ bootloader,
 to find a probable serial UART device. I’ll use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Parser&lt;/code&gt; later in the OS
 proper to bring up more devices.&lt;/p&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Breaking homegrown crypto</title>
-   <link href="https://kivikakk.ee/cryptography/2016/02/20/breaking-homegrown-crypto/"/>
    <updated>2016-02-20T02:56:00+02:00</updated>
    <id>https://kivikakk.ee/cryptography/2016/02/20/breaking-homegrown-crypto</id>
-   <content type="html">&lt;p&gt;Note: this is a pretty long article which does a deep dive into breaking some amateur crypto.  I go on for quite a bit.  Make a cup of tea before reading, and get ready to read some code!&lt;/p&gt;
+    
+     <link href="https://kivikakk.ee/cryptography/2016/02/20/breaking-homegrown-crypto/"/>
+     <content type="html">&lt;p&gt;Note: this is a pretty long article which does a deep dive into breaking some amateur crypto.  I go on for quite a bit.  Make a cup of tea before reading, and get ready to read some code!&lt;/p&gt;
 
 &lt;h3 id=&quot;introduction&quot;&gt;introduction&lt;/h3&gt;
 
@@ -1875,14 +2003,16 @@ this stuff was in &lt;code class=&quot;language-plaintext highlighter-rouge&quot
 &lt;script src=&quot;https://gist.github.com/kivikakk/c510b82a6ad828c3c5d3.js&quot;&gt;&lt;/script&gt;
 
 </content>
+    
  </entry>
  
  <entry>
    <title>Snapchat: not for state secrets</title>
-   <link href="https://kivikakk.ee/2013/05/10/snapchat/"/>
    <updated>2013-05-10T13:44:00+03:00</updated>
    <id>https://kivikakk.ee/2013/05/10/snapchat</id>
-   <content type="html">&lt;p&gt;I use &lt;a href=&quot;http://www.snapchat.com/&quot;&gt;Snapchat&lt;/a&gt;.  It’s an app where you can take a
+    
+     <link href="https://kivikakk.ee/2013/05/10/snapchat/"/>
+     <content type="html">&lt;p&gt;I use &lt;a href=&quot;http://www.snapchat.com/&quot;&gt;Snapchat&lt;/a&gt;.  It’s an app where you can take a
 photo or short (&amp;lt; 10 second) video and send it to your friends who use the
 service; they’ll then be able to see it, once, before it disappears forever.&lt;/p&gt;
 
@@ -2244,14 +2374,16 @@ it’s hard for someone who cared enough to.&lt;/p&gt;
   &lt;/ol&gt;
 &lt;/div&gt;
 </content>
+    
  </entry>
  
  <entry>
    <title>Escapology: how, when and why to encode and escape</title>
-   <link href="https://kivikakk.ee/2012/04/18/escapology/"/>
    <updated>2012-04-18T14:10:00+03:00</updated>
    <id>https://kivikakk.ee/2012/04/18/escapology</id>
-   <content type="html">&lt;p&gt;As programmers, we spend a lot of time just carting data from one place to
+    
+     <link href="https://kivikakk.ee/2012/04/18/escapology/"/>
+     <content type="html">&lt;p&gt;As programmers, we spend a lot of time just carting data from one place to
 another.  Sometimes that’s the entire purpose of a program or library (data
 conversion whatevers), but more often it’s just something that needs to happen
 in the course of getting a certain task done.  When we’re sending a request,
@@ -3110,6 +3242,7 @@ though. &lt;a href=&quot;#fnref:array-what-array&quot; class=&quot;reversefootn
   &lt;/ol&gt;
 &lt;/div&gt;
 </content>
+    
  </entry>
  
 
