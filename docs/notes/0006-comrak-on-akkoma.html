@@ -37,13 +37,13 @@ or Rust, so this “simply stuff Nix, Elixir and Rust into a magic hat” trick 
 guaranteed to be at least a little bit Fun™. And it was! :)</p>
 <p>Stock Akkoma uses <a href="https://github.com/pragdave/earmark">Earmark</a>, which
 looks like a lovely library, but maybe a lil out of date and out of step with
-CommonMark/GFM. <strong>We deserve <a href="https://hrzn.ee/kivikakk/comrak">Comrak</a></strong>.</p>
+CommonMark/GFM. <strong>We deserve <a href="https://github.com/kivikakk/comrak">Comrak</a></strong>.</p>
 <p>Happily enough, a Google search revealed a Nathan Faucett had already done
 most of the hard work of using Comrak from Elixir in
 <a href="https://gitlab.com/nathanfaucett/ex-markdown"><code>ex-markdown</code></a>. Thank you! This never gets old.</p>
 <p>Ported it for Comrak and <a href="https://github.com/rusterlium/rustler">Rustler</a>
 changes in the last 5 years, and then learned about the various ways to
-juggle Elixir and Mix releases/deps in Nix. <a href="https://hrzn.ee/kivikakk/ex-markdown/compare/master...lottia">Several hundred lines of hack-ish
+juggle Elixir and Mix releases/deps in Nix. <a href="https://github.com/kivikakk/ex-markdown/compare/master...lottia">Several hundred lines of hack-ish
 later</a> and
 <code>ex-markdown</code> was now fit for purpose.</p>
 <p>Special care was taken to ensure both <code>nix develop</code>- and <code>nix build</code>-based
@@ -71,7 +71,7 @@ in the one closure and no overlap.</p>
 <p>For now we hack it somewhat, and reproduce some of <code>ex-markdown</code>’s derivation in
 our Akkoma fork — <code>beamPackages</code> doesn’t have anything like <code>overrideBeamAttrs</code>
 or <code>overrideMixAttrs</code> at the moment.
-<a href="https://hrzn.ee/kivikakk/akkoma/compare/v3.10.4...lottia">There’s a fair bit more Nix</a>
+<a href="https://github.com/kivikakk/akkoma/compare/v3.10.4...lottia">There’s a fair bit more Nix</a>
 involved therein.</p>
 <p>We started with upstream Nixpkgs’ Akkoma package definition (again, copying the
 original as a base due to lack of override), add our <code>:markdown</code> package to the
@@ -128,6 +128,10 @@ strong enough signal to finally Just Do It.)</p>
           
             <h2>Notes</h2>
             <ul>
+              
+                <li class=""><a href="0009-time-travel-raw.html">Time travel, raw</a></li>
+              
+                <li class=""><a href="0008-time-travel.html">Time travel</a></li>
               
                 <li class=""><a href="0007-amaranth-to-chisel.html">Amaranth to Chisel</a></li>
               

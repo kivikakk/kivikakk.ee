@@ -1,20 +1,544 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://kivikakk.ee/notes/">
-  <id>https://kivikakk.ee/notes/</id>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://lottia.net/notes/">
+  <id>https://lottia.net/notes/</id>
   <title>lottia notes</title>
-  <updated>2024-06-24T15:00:00Z</updated>
-  <link rel="alternate" href="https://kivikakk.ee/notes/" type="text/html"/>
-  <link rel="self" href="https://kivikakk.ee/notes/atom.xml" type="application/atom+xml"/>
+  <updated>2024-07-06T16:21:00Z</updated>
+  <link rel="alternate" href="https://lottia.net/notes/" type="text/html"/>
+  <link rel="self" href="https://lottia.net/notes/atom.xml" type="application/atom+xml"/>
   <author>
-    <name>Asherah Connor</name>
-    <uri>https://kivikakk.ee/notes</uri>
+    <name>Asherah/Charlotte Connor</name>
+    <uri>https://lottia.net/notes</uri>
   </author>
   <entry>
-    <id>tag:kivikakk.ee,2024-05-09:/notes/0007-amaranth-to-chisel.html</id>
+    <id>tag:lottia.net,2024-07-06:/notes/0009-time-travel-raw.html</id>
+    <title type="html">Time travel, raw</title>
+    <published>2024-07-06T16:21:00Z</published>
+    <updated>2024-07-06T16:21:00Z</updated>
+    <link rel="alternate" href="https://lottia.net/notes/0009-time-travel-raw.html" type="text/html"/>
+    <content type="html">&lt;section id="top"&gt;
+&lt;p&gt;Raw log from my notes re: &lt;a href="0008-time-travel.html"&gt;Time travel&lt;/a&gt; follows.&lt;/p&gt;
+&lt;h2&gt;Sae&lt;/h2&gt;
+&lt;p&gt;RV32I with some RV32C/refactoring WIP from long ago. The WIP probably feels way too magic for me now, but we should take a look at it. Now uses Niar.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="todos"&gt;
+&lt;h3&gt;TODOs &lt;a href="#todos" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#decombing"&gt;Decombing&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href="#rv32c"&gt;RV32C&lt;/a&gt; and associated refactor
+&lt;ul&gt;
+&lt;li&gt;Then add RV32E, RV64I?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;The entire test infra could be so much more robust.&lt;/li&gt;
+&lt;li&gt;M extension&lt;/li&gt;
+&lt;li&gt;A extension&lt;/li&gt;
+&lt;li&gt;“Zicsr” extension&lt;/li&gt;
+&lt;li&gt;BMC (WHAT DID THIS MEAN)&lt;/li&gt;
+&lt;li&gt;ili9341spi interface&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/section&gt;
+&lt;section id="decombing"&gt;
+&lt;h3&gt;Decombing &lt;a href="#decombing" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;First priority is decombing the design to try to get the build time down. It’s currently redonkulous:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[2024-07-03 13:05:24,917] niar: INFO: building sae for icebreaker
+[2024-07-03 13:05:24,917] niar: DEBUG: starting elaboration
+[2024-07-03 13:05:25,148] niar: DEBUG: elaboration finished in 0:00:00.230441
+[2024-07-03 13:05:25,148] niar: DEBUG: 'sae.il': 425,987 bytes
+[2024-07-03 13:05:25,148] niar: DEBUG: starting synthesis/pnr
+[2024-07-03 13:05:25,148] niar: INFO: [run]   execute_build
+[2024-07-03 13:08:12,179] niar: DEBUG: synthesis/pnr finished in 0:02:47.031564
+[2024-07-03 13:08:12,207] niar: INFO: 
+[2024-07-03 13:08:12,207] niar: INFO: === sae ===
+[2024-07-03 13:08:12,207] niar: INFO: 
+[2024-07-03 13:08:12,207] niar: INFO:    Number of wires:               2859
+[2024-07-03 13:08:12,207] niar: INFO:    Number of wire bits:           9313
+[2024-07-03 13:08:12,207] niar: INFO:    Number of public wires:        2859
+[2024-07-03 13:08:12,208] niar: INFO:    Number of public wire bits:    9313
+[2024-07-03 13:08:12,208] niar: INFO:    Number of ports:                  4
+[2024-07-03 13:08:12,208] niar: INFO:    Number of port bits:              4
+[2024-07-03 13:08:12,208] niar: INFO:    Number of memories:               0
+[2024-07-03 13:08:12,208] niar: INFO:    Number of memory bits:            0
+[2024-07-03 13:08:12,208] niar: INFO:    Number of processes:              0
+[2024-07-03 13:08:12,208] niar: INFO:    Number of cells:               5732
+[2024-07-03 13:08:12,208] niar: INFO:      $scopeinfo                     19
+[2024-07-03 13:08:12,208] niar: INFO:      SB_CARRY                      452
+[2024-07-03 13:08:12,208] niar: INFO:      SB_DFF                         79
+[2024-07-03 13:08:12,208] niar: INFO:      SB_DFFE                        35
+[2024-07-03 13:08:12,208] niar: INFO:      SB_DFFESR                    1380
+[2024-07-03 13:08:12,208] niar: INFO:      SB_DFFSR                        8
+[2024-07-03 13:08:12,208] niar: INFO:      SB_GB_IO                        1
+[2024-07-03 13:08:12,208] niar: INFO:      SB_IO                           3
+[2024-07-03 13:08:12,208] niar: INFO:      SB_LUT4                      3737
+[2024-07-03 13:08:12,208] niar: INFO:      SB_RAM40_4K                    18
+[2024-07-03 13:08:12,208] niar: INFO: 
+[2024-07-03 13:08:12,208] niar: INFO: Device utilisation:
+[2024-07-03 13:08:12,208] niar: INFO:            ICESTORM_LC:  5033/ 5280    95%
+[2024-07-03 13:08:12,208] niar: INFO:           ICESTORM_RAM:    18/   30    60%
+[2024-07-03 13:08:12,208] niar: INFO:                  SB_IO:     4/   96     4%
+[2024-07-03 13:08:12,208] niar: INFO:                  SB_GB:     5/    8    62%
+[2024-07-03 13:08:12,208] niar: INFO:           ICESTORM_PLL:     0/    1     0%
+[2024-07-03 13:08:12,208] niar: INFO:            SB_WARMBOOT:     0/    1     0%
+[2024-07-03 13:08:12,208] niar: INFO:           ICESTORM_DSP:     0/    8     0%
+[2024-07-03 13:08:12,208] niar: INFO:         ICESTORM_HFOSC:     0/    1     0%
+[2024-07-03 13:08:12,208] niar: INFO:         ICESTORM_LFOSC:     0/    1     0%
+[2024-07-03 13:08:12,208] niar: INFO:                 SB_I2C:     0/    2     0%
+[2024-07-03 13:08:12,208] niar: INFO:                 SB_SPI:     0/    2     0%
+[2024-07-03 13:08:12,208] niar: INFO:                 IO_I3C:     0/    2     0%
+[2024-07-03 13:08:12,208] niar: INFO:            SB_LEDDA_IP:     0/    1     0%
+[2024-07-03 13:08:12,208] niar: INFO:            SB_RGBA_DRV:     0/    1     0%
+[2024-07-03 13:08:12,208] niar: INFO:         ICESTORM_SPRAM:     0/    4     0%
+[2024-07-03 13:08:12,208] niar: INFO: 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;After moving the fault check out of &lt;code&gt;fetch.resolve&lt;/code&gt;: 1:47, 4825 LCs.&lt;br&gt;
+After using &lt;code&gt;.all()&lt;/code&gt;: 1:44, 4802 LCs.&lt;br&gt;
+After fixing our IL digest behaviour: priceless.&lt;/p&gt;
+&lt;p&gt;After splitting out just OP_IMM: 404k IL, 2:36, 5038 LCs. O_o&lt;br&gt;
+I guess I need to split out the decode a little more? Or maybe it’s just a matter of decomposing more.&lt;/p&gt;
+&lt;p&gt;After replacing multiple &lt;code&gt;m.d.sync += self.write_xreg(v_i.rd, ...)&lt;/code&gt; with one of those and a comb wire &lt;code&gt;out&lt;/code&gt; for the value: &lt;strong&gt;404k IL, 1:35, 4851 LCs&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;We’ll split it out as much as possible at first, and then slowly reintegrate. We already do the register save in &lt;code&gt;fetch.init&lt;/code&gt;, and now with some care after splitting out OP_IMM it’s a bit better again.&lt;/p&gt;
+&lt;p&gt;Need to remember that the toolchain does &lt;em&gt;much less deduplication than we assume&lt;/em&gt;. Keep going on that, esp with insn decode.&lt;/p&gt;
+&lt;p&gt;Using &lt;code&gt;~insn[:16].bool()&lt;/code&gt; instead of &lt;code&gt;== 0&lt;/code&gt;: &lt;strong&gt;404k IL, 1:52, 4800 LCs&lt;/strong&gt;.&lt;br&gt;
+Using &lt;code&gt;wb_reg.any()&lt;/code&gt; instead of &lt;code&gt;!= 0&lt;/code&gt;: &lt;strong&gt;no change&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;After splitting out LOAD: &lt;strong&gt;404k IL, 1:59, 4945 LCs&lt;/strong&gt;. Uhm.&lt;br&gt;
+After factoring the xreg fetch into common: &lt;strong&gt;402k IL, 1:46, 4972 LCs&lt;/strong&gt;. Hmmmmmm.&lt;/p&gt;
+&lt;p&gt;After adding the read register: ran out of BELs. Welp. (6515 cells.)&lt;br&gt;
+After changing the read register comb-&amp;gt;sync: 6394 cells. Improved slightly.&lt;br&gt;
+After splitting out OP: &lt;strong&gt;371k IL, 7166 cells&lt;/strong&gt;. …&lt;br&gt;
+After refactoring OP with &lt;code&gt;out&lt;/code&gt;: 7120 cells.&lt;br&gt;
+After splitting out STORE: &lt;strong&gt;368k IL, 7134 cells&lt;/strong&gt;.&lt;br&gt;
+After splitting out BRANCH: &lt;strong&gt;343k IL, 6386 cells&lt;/strong&gt;.&lt;br&gt;
+After splitting out JALR: &lt;strong&gt;339k IL, 5599 cells and PNR is working again&lt;/strong&gt;.&lt;br&gt;
+After changing &lt;code&gt;jump(m, pc)&lt;/code&gt;’s context manager return to &lt;code&gt;~_.bool()&lt;/code&gt;: &lt;strong&gt;339k IL, 5602 cells&lt;/strong&gt;. Uh, ok. Reverting that for now just ‘cause maybe there’s a cross-over point (size of bv).&lt;/p&gt;
+&lt;p&gt;Using &lt;code&gt;any()&lt;/code&gt; instead of &lt;code&gt;bool()&lt;/code&gt; causes cell reduction? At 5587. &lt;strong&gt;339k IL, 1:04, 4774 LCs&lt;/strong&gt;.&lt;br&gt;
+OK, switching sync-&amp;gt;comb on read regs bumps back up to 5664 (+77), and increases PNR time significantly (maybe because we’re close to cell count?). &lt;strong&gt;338k IL, 2:41, 4984 LCs (94%)&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Next step is to do the instruction decode in one place and then pass info to following stages.&lt;/p&gt;
+&lt;p&gt;Added &lt;code&gt;imm&lt;/code&gt; and &lt;code&gt;funct3&lt;/code&gt; to LOAD: &lt;strong&gt;342k IL, 1:06, 4905 LCs (92%)&lt;/strong&gt;.&lt;br&gt;
+Did the same to OP_IMM: &lt;strong&gt;342k IL, 0:58, 4886 LCs (92%)&lt;/strong&gt;.&lt;br&gt;
+Removed &lt;code&gt;v_sxi&lt;/code&gt; wire and just used &lt;code&gt;imm[:12].as_signed()&lt;/code&gt; in place: &lt;strong&gt;342k IL, 1:01, 4907 LCs (92%)&lt;/strong&gt;.&lt;br&gt;
+Did same deal to OP: &lt;strong&gt;343k IL, 1:01, 4806 LCs&lt;/strong&gt;.&lt;br&gt;
+Did same deal to STORE: &lt;strong&gt;344k IL, 1:16, 4816 LCs&lt;/strong&gt;. !!!&lt;br&gt;
+I forgot to only use the bottom 12 bits of &lt;code&gt;imm&lt;/code&gt;. Fixed: &lt;strong&gt;344k IL, 1:09, 4910 LCs&lt;/strong&gt;. What?&lt;br&gt;
+Try doing the sign-extension in resolve: &lt;strong&gt;344k IL, 1:13, 4845 LCs&lt;/strong&gt;.&lt;br&gt;
+Do the thing for BRANCH: &lt;strong&gt;337k IL, 1:20, 4859 LCs&lt;/strong&gt;.&lt;br&gt;
+JALR too, that’s everything: &lt;strong&gt;337k IL, 1:13, 4812 LCs&lt;/strong&gt;.&lt;br&gt;
+Drop &lt;code&gt;v_sxi&lt;/code&gt; and do the sign extension in resolve: &lt;strong&gt;336k IL, 1:15, 4825 LCs&lt;/strong&gt;.&lt;br&gt;
+Same for LOAD: &lt;strong&gt;336k IL, 1:17, 4774 LCs (90%)&lt;/strong&gt;. Huh.&lt;/p&gt;
+&lt;p&gt;op.op_imm and op.op can be refactored.&lt;br&gt;
+Hackily done: &lt;strong&gt;333k IL, 0:59, 4595 LCs&lt;/strong&gt;. OK yeah, that helps!&lt;br&gt;
+Done so that it actually works (still hack): &lt;strong&gt;333k IL, 1:05, 4633 LCs (87%)&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Put register file in memory now that it’s all separated out.&lt;br&gt;
+(How much is it using, really? Half XCOUNT: &lt;strong&gt;288k IL, 0:19, 3340 LCs (63%)&lt;/strong&gt;. OK, quite a bit.)&lt;/p&gt;
+&lt;p&gt;Pico fits in 750–1000. SERV fits in 198??????&lt;/p&gt;
+&lt;p&gt;Dumped it in a register file. Gave it two read ports so no existing code has to change, I think it’s just duplicated the memories but they’re so small it doesn’t matter. &lt;strong&gt;265k IL, 0:13, 2367 LCs (44%)&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Cleaned up our reg read and write logic: &lt;strong&gt;264k IL, 0:14, 2300 LCs (43%)&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;TODOs remaining:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;input type="checkbox" checked="" disabled=""&gt; Read all the accepted Amaranth RFCs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;OK cool.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;input type="checkbox" checked="" disabled=""&gt; Do a once-over and generally clean up the Hart.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;2291 LCs.&lt;br&gt;
+2162 LCs after combing the MMU interface.&lt;br&gt;
+2269 when I do it to the MMU write port. No point since we have to register a lot anyway. Back to 2162. Similarly it grows when I use comb to set &lt;code&gt;req_width&lt;/code&gt; — maybe because everything else in the FSM (back at this point) is sync, so they all switch together. Hrm.&lt;/p&gt;
+&lt;p&gt;Let’s try changing the write_xreg to comb. Basis: &lt;code&gt;8e3c38ca&lt;/code&gt;, 2162 LCs. Hm, nah — this can’t work. We assemble the components over multiple cycles fairly often (use &lt;code&gt;xwr_reg&lt;/code&gt; to store &lt;code&gt;v_X.rd&lt;/code&gt; etc.). What about read_xreg? The result is we &lt;em&gt;must&lt;/em&gt; read the result when expected, since we’re no longer registering the address. I anticipate a growth in LCs (but faster reads).&lt;/p&gt;
+&lt;p&gt;2266 LCs, but haven’t removed the extra states yet so tests all fail.&lt;br&gt;
+2303 LCs, necessitated an ALU refactor. So I don’t think there’s a benefit to this other than speed? Let’s see how many cycles CXXRTL gains.&lt;br&gt;
+57508 after change, 57505 before. Well! The ALU split is something though, if I keep that it’s gonna be uglier anyway. How can I fix up?&lt;/p&gt;
+&lt;p&gt;Maybe we can tell the ALU where to read its inputs.&lt;/p&gt;
+&lt;p&gt;Adding a top-level “delay” that gates the whole FSM adds 100LCs. It’d be nice to have &lt;em&gt;one&lt;/em&gt; wait state. Ah well.&lt;/p&gt;
+&lt;p&gt;2230 LCs after centralising the ALU. Splitting it into two stages gets us to … 2246? Oh. OK. Really didn’t expect that. Guess I won’t do that.&lt;/p&gt;
+&lt;p&gt;If we don’t have reg read &lt;em&gt;always on&lt;/em&gt;, we can actually shuffle bits like &lt;code&gt;imm&lt;/code&gt; &lt;em&gt;into&lt;/em&gt; &lt;code&gt;xrd2_val&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Up to 2303 on adding &lt;code&gt;xrd[12]_en&lt;/code&gt;. … and hold the phone, &lt;code&gt;xrd2_val&lt;/code&gt; is comb-driven. Nvm.&lt;br&gt;
+It barely helps us anyway since we need to post-process for the ALU. Cancel that.&lt;/p&gt;
+&lt;p&gt;2202 after dropping the &lt;code&gt;m.If(funct7[5])&lt;/code&gt; out of the &lt;code&gt;Else()&lt;/code&gt; block — &lt;em&gt;we&lt;/em&gt; know they’re mutually exclusive, whereas it doesn’t.&lt;/p&gt;
+&lt;p&gt;On the contrary, 2189 after changing the &lt;code&gt;m.If(funct3 == …ADDSUB): … / m.If(funct3 == ….SR)&lt;/code&gt; to if/elif: easier mux? It resembles a switch (which are probably optimised …).&lt;/p&gt;
+&lt;p&gt;2202 after collapsing l.wait states. Cleaner. 2194 after fixing the default bug — that’s 41%.&lt;/p&gt;
+&lt;p&gt;I would love to get a better idea &lt;em&gt;where&lt;/em&gt; all these cells are being spent, but it’s pretty hard to say after optimisations.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;input type="checkbox" checked="" disabled=""&gt; Consider the same for the MMU.
+&lt;ul&gt;
+&lt;li&gt;
+&lt;input type="checkbox" checked="" disabled=""&gt; At minimum, use &lt;code&gt;amaranth.lib.stream&lt;/code&gt; for its interface.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;input type="checkbox" checked="" disabled=""&gt; Stop embedding the “address bus” in the MMU along with the UART hook.&lt;/li&gt;
+&lt;li&gt;
+&lt;input type="checkbox" checked="" disabled=""&gt; Clean up UART.&lt;/li&gt;
+&lt;li&gt;
+&lt;input type="checkbox" disabled=""&gt; Move onto the big task.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Aside: ABTest&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;I feel like I want to make a little sandbox or something that makes evaluating the RTLIL diff between Amaranth expressions easier (optionally running it through &lt;code&gt;opt&lt;/code&gt; or all the way through synthesis).&lt;/strong&gt; Ideally it could even run in-situ, i.e.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;ABTest&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;A&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;comb&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;blah&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;ABTest&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;B&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;comb&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;blah&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;~&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="nf"&gt;bool&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Or even:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-python"&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;comb&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;blah&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;eq&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;ABTest&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;~&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="nf"&gt;bool&lt;/span&gt;&lt;span class="p"&gt;()))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;All such sites would be toggled individually (with others defaulting to “A”, no cartesian product) and then outputs presented for comparison.&lt;/p&gt;
+&lt;p&gt;Sae’s a bit slow to try this with right now.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="rv32c"&gt;
+&lt;h3&gt;RV32C &lt;a href="#rv32c" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;This will take some re-understanding. We know the shape of the ISA(s) better now so we might be able to design something less Heppin Magic.&lt;/p&gt;
+&lt;p&gt;The cherry-picking went fairly straightforwardly, lots of conflicts but all easily resolved. Glad we did it in this order!&lt;/p&gt;
+&lt;p&gt;There’s &lt;em&gt;so&lt;/em&gt; much magic in &lt;code&gt;isa.py&lt;/code&gt; that I’m resolved to redesign this in a much more straightforward way.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="design"&gt;
+&lt;h4&gt;Design &lt;a href="#design" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;Users of an ISA defined with this tool:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;assembler/disassembler
+&lt;ul&gt;
+&lt;li&gt;Opcodes and registers accessible via reflection, including support for defining shorthands (&lt;code&gt;J&lt;/code&gt;, &lt;code&gt;LI&lt;/code&gt;, etc.).&lt;/li&gt;
+&lt;li&gt;Need to be able to go the other way, too.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;gateware
+&lt;ul&gt;
+&lt;li&gt;Clear and easy access to layouts and op constants.&lt;/li&gt;
+&lt;li&gt;Exposes metadata like ILEN/XLEN/XCOUNT for gateware to use.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;subclassing ISAs
+&lt;ul&gt;
+&lt;li&gt;Can be added to, removed from (e.g. RV32E reducing XCOUNT).&lt;/li&gt;
+&lt;li&gt;
+&lt;/li&gt;&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Goals:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Much less magic.
+&lt;ul&gt;
+&lt;li&gt;Avoid metaclasses, avoid &lt;code&gt;__call__&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Inspecting signatures is OK&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Just enough flexibility to express RV; other ISAs are currently a non-goal.
+&lt;ul&gt;
+&lt;li&gt;I &lt;em&gt;think&lt;/em&gt; the current design encapsulates most of what we’ll need here.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Notes on the existing design:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Our current design doesn’t include an intermediate representation: &lt;code&gt;IThunk.__call__&lt;/code&gt; winds up calling &lt;code&gt;shape.const().as_value().value&lt;/code&gt;, building up args to pass to &lt;code&gt;const()&lt;/code&gt;; there’s no real point of “calling it done” except for the first time it’s called.&lt;/li&gt;
+&lt;li&gt;Many layouts define immediates in groups of &lt;code&gt;imm0_4&lt;/code&gt;, &lt;code&gt;imm5&lt;/code&gt;, &lt;code&gt;imm6_11&lt;/code&gt; kinds of things. Sometimes they also omit e.g. &lt;code&gt;imm0&lt;/code&gt; (implied 0).&lt;/li&gt;
+&lt;li&gt;An &lt;code&gt;ISA&lt;/code&gt; has a notion of a &lt;code&gt;Register&lt;/code&gt;, which is a class defined in the return value of &lt;code&gt;ISA.RegisterSpecifier()&lt;/code&gt; (!).
+&lt;ul&gt;
+&lt;li&gt;This uses &lt;code&gt;locals().update(members)&lt;/code&gt; to define the members of an &lt;code&gt;IntEnum&lt;/code&gt;, where registers is built up from a list of (name, alias0, …, aliasn) tuples and a target size.&lt;/li&gt;
+&lt;li&gt;I think we’ll still need something like this; it’s actually one of the least magic parts of this.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;All &lt;code&gt;ISA&lt;/code&gt; members can define &lt;code&gt;_needs_named&lt;/code&gt; and &lt;code&gt;_needs_finalised&lt;/code&gt; attributes, processed in &lt;code&gt;ISAMeta.__new__&lt;/code&gt;.
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;_needs_named&lt;/code&gt; causes the assignment of &lt;code&gt;__name__&lt;/code&gt; and &lt;code&gt;__fullname__&lt;/code&gt; attributes, according to the name being assigned to.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;_needs_finalised&lt;/code&gt; calls &lt;code&gt;finalise&lt;/code&gt; on the object with a reference to the &lt;code&gt;ISA&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;This lets members finish initialising themselves with an awareness of everything else defined in the &lt;code&gt;ISA&lt;/code&gt;, including things defined (lexically) after them.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;ILayout&lt;/code&gt; is an empty baseclass with an &lt;code&gt;ILayoutMeta&lt;/code&gt; metaclass.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;ILayoutMeta.__new__&lt;/code&gt; takes an optional argument &lt;code&gt;len&lt;/code&gt; and assigns it to &lt;code&gt;cls.len&lt;/code&gt; (where &lt;code&gt;cls&lt;/code&gt; is the newly-created class).&lt;/li&gt;
+&lt;li&gt;If &lt;code&gt;layout&lt;/code&gt; is specified, it marks the class as needing finalisation and checks that &lt;code&gt;cls.len&lt;/code&gt; is in fact defined (either now, or in a superclass). Otherwise, it’s considered a layout base class.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;ILayoutMeta.finalise&lt;/code&gt;:
+&lt;ul&gt;
+&lt;li&gt;assembles the defining context dictionary by iterating the &lt;code&gt;ISA&lt;/code&gt;’s MRO backwards for their &lt;code&gt;dir()&lt;/code&gt;s, discounting names starting with underscore (&lt;code&gt;_&lt;/code&gt;);
+&lt;ul&gt;
+&lt;li&gt;In other words, items in the &lt;code&gt;ISA&lt;/code&gt; class and superclasses define the context for type-shape lookups.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;assembles the full type-shape dictionary by iterating the &lt;code&gt;ILayout&lt;/code&gt; instance’s MRO backwards for annotations, starting from after &lt;code&gt;ISA.ILayout&lt;/code&gt; itself;
+&lt;ul&gt;
+&lt;li&gt;In other words, annotations in class and its &lt;code&gt;ISA.ILayout&lt;/code&gt; superclasses define the set of type-shapes available to &lt;code&gt;layout&lt;/code&gt; items.&lt;/li&gt;
+&lt;li&gt;The context dictionary is used as &lt;code&gt;locals()&lt;/code&gt; here.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;iterates over the &lt;code&gt;layout&lt;/code&gt; tuple given by the subclass, constructing &lt;code&gt;cls._fields&lt;/code&gt; by matching names to &lt;code&gt;ShapeCastable&lt;/code&gt;s:
+&lt;ul&gt;
+&lt;li&gt;Members can be strings, in which case they refer to an annotation with a matching name.
+&lt;ul&gt;
+&lt;li&gt;If the exact match lookup is unsuccessful, the class’s &lt;code&gt;resolve()&lt;/code&gt; function is called with some context (the remaining items in the layout, length of instruction remaining needing to be allocated to a field), which must succeed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Members can be &lt;code&gt;(name, shapecastable)&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;initialises &lt;code&gt;cls.shape = StructLayout(cls._fields)&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;initialises &lt;code&gt;cls.values&lt;/code&gt; and &lt;code&gt;cls.defaults&lt;/code&gt; by calling &lt;code&gt;resolve_values&lt;/code&gt; on the class’s existing (set by subclass definition) &lt;code&gt;values&lt;/code&gt; and &lt;code&gt;defaults&lt;/code&gt; members, if any.
+&lt;ul&gt;
+&lt;li&gt;These may not overlap.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;ints&lt;/code&gt; are &lt;code&gt;ints&lt;/code&gt;, strings are treated as keys for the &lt;code&gt;ShapeCastable&lt;/code&gt; for the corresponding field.
+&lt;ul&gt;
+&lt;li&gt;If item lookup fails, the &lt;code&gt;ShapeCastable&lt;/code&gt;’s &lt;code&gt;__call__&lt;/code&gt; is tried.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;ILayoutMeta.resolve&lt;/code&gt; just raises an error. Is this really exposed on subclass instances? Surprising.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;ILayoutMeta.xfrm&lt;/code&gt; constructs the class and calls &lt;code&gt;xfrm&lt;/code&gt; on it.
+&lt;ul&gt;
+&lt;li&gt;If &lt;code&gt;I&lt;/code&gt; is an &lt;code&gt;ILayout&lt;/code&gt; subclass, this just means &lt;code&gt;I.xfrm(…)&lt;/code&gt; is the same as &lt;code&gt;I().xfrm()&lt;/code&gt;, i.e. get an unrefined thunk and then transform it.
+&lt;ul&gt;
+&lt;li&gt;
+&lt;em&gt;Digression:&lt;/em&gt; for whatever reason we really like being able to use classes in these positions. It “must” be a class because it’s the result of defining something with &lt;code&gt;class Blah:&lt;/code&gt;, which itself is needed because we often want to supply code, nested classes, etc. But why the insistence on calling the class itself? We don’t &lt;em&gt;ever&lt;/em&gt; have class instances, and doesn’t that seem a bit strange?&lt;/li&gt;
+&lt;li&gt;Thinking forward, the class instances should be the intermediate representation, not a separate thunk class. You call &lt;code&gt;I()&lt;/code&gt; or &lt;code&gt;I(a=b)&lt;/code&gt;, you get a &lt;code&gt;&amp;lt;myisa.MyISA.I object&amp;gt;&lt;/code&gt;, with the args hitting &lt;code&gt;I.__init__&lt;/code&gt; like a regular human being.&lt;/li&gt;
+&lt;li&gt;This prevents our delightful (…) hack with &lt;code&gt;I(s)&lt;/code&gt;. We can actually just call it &lt;code&gt;I.shape(s)&lt;/code&gt;, which already exists because that’s what it does lol!!&lt;/li&gt;
+&lt;li&gt;I have some lingering concerns here around repeated work that currently happens in &lt;code&gt;finalise&lt;/code&gt; etc. but let’s deoptimise now, and reoptimise after the design is sane.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;ILayoutMeta.__call__&lt;/code&gt; allows zero or one positional arguments, plus kwargs.
+&lt;ul&gt;
+&lt;li&gt;In the above example, this is &lt;code&gt;I(…)&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Zero positionals asserts a layout is defined, and returns a new &lt;code&gt;IThunk(cls, kwargs)&lt;/code&gt;.
+&lt;ul&gt;
+&lt;li&gt;In other words, &lt;code&gt;"I(a=b)"&lt;/code&gt;. This denotes a partially refined instruction based on &lt;code&gt;I&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Note that even &lt;code&gt;I()&lt;/code&gt; is valid syntax, to get the same kind of thunk but not refining any part of it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;One positional asserts a &lt;code&gt;Signal&lt;/code&gt; argument is given and wraps it in the subclass’s &lt;code&gt;shape&lt;/code&gt; (&lt;code&gt;cls.shape(s)&lt;/code&gt;), so you can call &lt;code&gt;I(s)&lt;/code&gt; to decode &lt;code&gt;s&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;IThunk&lt;/code&gt; is as close as we get to an “intermediate representation” here.
+&lt;ul&gt;
+&lt;li&gt;Sets &lt;code&gt;_needs_named&lt;/code&gt;, as it’s probably going to be assigned in an expression like &lt;code&gt;ADDI = I(funct3=I.IFunct.ADDI)&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Stores the class it was constructed from and the &lt;code&gt;kwargs&lt;/code&gt; we got.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;xfrms&lt;/code&gt; initialised to empty.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;asm_args&lt;/code&gt; is defined from &lt;code&gt;list(self.layout)&lt;/code&gt;: it’s the list of arguments an assembly call need to provide. If your layout is &lt;code&gt;("opcode", "rd", "imm")&lt;/code&gt;, we need an opcode, dest register and immediate.
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;opcode&lt;/code&gt; is defined as type &lt;code&gt;Opcode&lt;/code&gt; and &lt;code&gt;rd&lt;/code&gt; as &lt;code&gt;Reg&lt;/code&gt; in the defining context, and &lt;code&gt;imm&lt;/code&gt; is handled in &lt;code&gt;IL.resolve&lt;/code&gt; when it’s in the final position.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;opcode&lt;/code&gt; is refined by being specified in &lt;code&gt;kwargs&lt;/code&gt;, leaving just &lt;code&gt;rd&lt;/code&gt; and &lt;code&gt;imm&lt;/code&gt; for the “asm args”. So how does that happen?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;We iterate over all &lt;code&gt;values&lt;/code&gt; and &lt;code&gt;defaults&lt;/code&gt; in the IL class, and names in &lt;code&gt;kwargs&lt;/code&gt;, removing from &lt;code&gt;asm_args&lt;/code&gt; any specified there.&lt;/li&gt;
+&lt;li&gt;Next we iterate names in &lt;code&gt;kwargs&lt;/code&gt;, asserting all specified are a part of the &lt;code&gt;layout&lt;/code&gt;, and none are part of the IL class’s &lt;code&gt;values&lt;/code&gt; (the distinction between &lt;code&gt;values&lt;/code&gt; and &lt;code&gt;defaults&lt;/code&gt; being whether they can be overridden in a thunk ctor or not).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;It has &lt;code&gt;clone()&lt;/code&gt; and &lt;code&gt;partial(**kwargs)&lt;/code&gt;; the former returns a new &lt;code&gt;IThunk&lt;/code&gt; with copies of all settings (for declaration, immutable definition), the latter clones and updates &lt;code&gt;clone.kwargs&lt;/code&gt; with given kwargs, removing those from &lt;code&gt;clone.asm_args&lt;/code&gt; (further refinement of an &lt;code&gt;IThunk&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;It also has &lt;code&gt;xfrm(xfn, **kwarg_defaults)&lt;/code&gt;, which appends a new transform to &lt;code&gt;clone.xfrms&lt;/code&gt;, with some optional default kwargs.
+&lt;ul&gt;
+&lt;li&gt;Transforms are a function which are handed a set of kwargs, and return a dict to update kwargs given to the next one (or to the &lt;code&gt;ilcls.shape.const(…)&lt;/code&gt; call at the end).&lt;/li&gt;
+&lt;li&gt;The kwargs start out as the thunk’s own &lt;code&gt;kwargs&lt;/code&gt; mixed with any given to the &lt;code&gt;IThunk.__call__&lt;/code&gt;, latter superseding the former.&lt;/li&gt;
+&lt;li&gt;The transform function’s signature is analysed: if you take a parameter &lt;code&gt;x&lt;/code&gt;, the kwarg &lt;code&gt;x&lt;/code&gt; is filled in (mandatory). If you specify &lt;code&gt;x=default&lt;/code&gt;, then &lt;code&gt;kwarg_defaults&lt;/code&gt; and finally &lt;code&gt;default&lt;/code&gt; are used as fallbacks.
+&lt;ul&gt;
+&lt;li&gt;I wonder why &lt;code&gt;kwarg_defaults&lt;/code&gt; is only allowed when no default is given. I guess they’re either really mandatory to specify, or possibly optional.&lt;/li&gt;
+&lt;li&gt;An example here is &lt;code&gt;shamt_xfrm(shamt, *, imm11_5=0)&lt;/code&gt;. &lt;code&gt;SRAI&lt;/code&gt; overrides this with &lt;code&gt;SRAI = I(funct3=I.IFunct.SRI).xfrm(I.shamt_xfrm, imm11_5=0b0100000)&lt;/code&gt;; the others don’t override it at all.&lt;/li&gt;
+&lt;li&gt;In other words, &lt;code&gt;kwarg_defaults&lt;/code&gt; is more like “default overrides”. In either case I don’t imagine a user is actually setting one in a thunk, so maybe they should be treated that way.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;What’s unspecified here is a way for transforms to also transform &lt;code&gt;asm_args&lt;/code&gt;, and that’s where I got up to with&lt;code&gt;# clone.asm_args. ## RESUME XXX GOOD LUCK&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;When an &lt;code&gt;IThunk&lt;/code&gt; is called, we resolve the &lt;code&gt;args_for&lt;/code&gt; the given kwargs.
+&lt;ul&gt;
+&lt;li&gt;We call the transform pipe with &lt;code&gt;self.kwargs | args&lt;/code&gt;, i.e. those given while constructing the thunk mixed with those given while calling it.&lt;/li&gt;
+&lt;li&gt;The result of the pipe is asserted to match the layout and not override anything it’s not allowed to override.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;ilcls.values&lt;/code&gt;, &lt;code&gt;ilcls.defaults&lt;/code&gt; (both already ‘resolved’) and result of resolving the pipe’s output are all combined and become the args passed to &lt;code&gt;shape.const&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Note that transforms are called in the order given, so we must transform &lt;code&gt;asm_args&lt;/code&gt; back-to-front, as inputs used by earlier transforms may be provided by later ones.
+&lt;ul&gt;
+&lt;li&gt;Actually this is just backwards unless we do yet-more-thunking/accumulating. Let’s reverse the order of how it should be called, so we can apply &lt;code&gt;asm_args&lt;/code&gt; changes as &lt;code&gt;xfrm()&lt;/code&gt; is called repeatedly. Actually call the transforms in reverse order.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/section&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:lottia.net,2024-07-06:/notes/0008-time-travel.html</id>
+    <title type="html">Time travel</title>
+    <published>2024-07-06T14:07:00Z</published>
+    <updated>2024-07-06T14:07:00Z</updated>
+    <link rel="alternate" href="https://lottia.net/notes/0008-time-travel.html" type="text/html"/>
+    <content type="html">&lt;section id="top"&gt;
+&lt;p&gt;The typical hypothetical “who are you coding for” example meant to shock
+you into writing better code is “yourself in six months”, but it turns out
+four is completely adequate to get lost.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="start"&gt;
+&lt;h2&gt;Start &lt;a href="#start" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;In February I started writing my first RV32 core. By the end of the month, I
+had enough of one going to run some sample code compiled with GCC for RV32I,
+interacting with UART via MMIO, which was such a nice feeling. It was written
+in a very dumb manner — meaning it used 95% of the UP5K and took 3 minutes to
+synthesise — but on the other hand it ran pretty much at one cycle per cycle!
+(I hadn’t pipelined instruction memory fetches, so it &lt;em&gt;didn’t&lt;/em&gt;, but that was the
+only thing standing in the way of that. It was written very, uh, plainly.)&lt;/p&gt;
+&lt;p&gt;Next I wanted to tackle RV32C, and one thing I wasn’t happy with was &lt;a href="https://github.com/kivikakk/sae/blob/4faae64a780bf0521fc8aa73bf8cc7b70add193c/sae/rtl/rv32.py"&gt;how I was
+actually defining the ISA&lt;/a&gt;. It was very manual, and it felt like there
+was a lot that could be extracted out in less ad-hoc ways, so that I didn’t then
+have to repeat myself even more when adding RV32C, or e.g. making it possible to
+define a thing called “RV32E” (which is just RV32I with 16 X registers insteah
+of 32) as a refinement of RV32I instead of repeating a whole bunch of code, and
+then making that selectable as the basis for a core/hart. This also provided an
+opportunity to expose more metadata for the built-in assembler and disassembler
+used by the test suite.&lt;/p&gt;
+&lt;p&gt;I started to extract a bit of a “construction kit” for ISAs, and as was my Python
+style at the time, there was a &lt;em&gt;lot&lt;/em&gt; of magic involved. One of the commits describes
+redoing something &lt;a href="https://github.com/kivikakk/sae/commit/d23fdd79a948a7cc1f4c1edc94295e4f4cfe6bff"&gt;“with just slightly less magic”&lt;/a&gt;, but iunno, a lot
+of magic follows in the commits after that one.&lt;/p&gt;
+&lt;p&gt;And then, on March 5, &lt;a href="https://github.com/kivikakk/sae/commit/666247bfea908253d2aa1aa5c2bd8b208fa231fd"&gt;a small “wip” commit&lt;/a&gt; is the last of the branch, with
+some code that’s kind of half-there, half-nonsense, and the following intentionally
+syntactically incomplete line:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-diff"&gt;             clone.xfrms.append(pipe)
+&lt;span class="gi"&gt;+            clone.asm_args. ## RESUME XXX GOOD LUCK&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/section&gt;
+&lt;section id="change"&gt;
+&lt;h2&gt;Change &lt;a href="#change" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;At that stage I was about a month off moving to Estonia, and so all work
+stopped. By the time I started to do HDL again, two months later, I’d decided
+to stop using Amaranth entirely and
+&lt;a href="0007-amaranth-to-chisel.html"&gt;learned to do digital design in Chisel&lt;/a&gt;, which was a big undertaking.
+A lot of the machinery around the design needed to be implemented — connecting
+to resources on IO pins, the concept of building for different platforms, etc.
+— a lot of the toolchain needed to be replaced/ rebuilt, but the actual manner
+of design changed a lot too. I’d taught myself HDL with Amaranth, and I sort
+of retaught myself it with Chisel, grasping the fundamentals more clearly.&lt;/p&gt;
+&lt;p&gt;(I also wrote a framework for Chisel in this time, &lt;a href="https://github.com/kivikakk/chryse"&gt;Chryse&lt;/a&gt;, which is where all
+my non-project-specific bits went, including the replacements for what Amaranth
+gave outside the HDL itself. I had a project framework for Amaranth, &lt;a href="https://github.com/kivikakk/hdx#rain"&gt;Rain&lt;/a&gt;, so
+Chryse was like Amaranth build’n’platform plus Rain.)&lt;/p&gt;
+&lt;p&gt;Three-ish weeks ago, I started using Amaranth again, and it was time to see
+where my old work was at. First, I ported everything new from Chryse back to
+Rain, freeing it from its weird Nix flake and so giving it a new name, &lt;a href="https://github.com/kivikakk/hdx?tab=readme-ov-file#rain"&gt;Niar&lt;/a&gt;.
+Then I ported my last Chisel project back to Amaranth, &lt;a href="https://github.com/kivikakk/ili9341spi"&gt;ili9341spi&lt;/a&gt;, using it as
+the basis for testing Niar. (It’s just an TFT LCD controller, rendering Conway’s
+Game of Life.)&lt;/p&gt;
+&lt;p&gt;Once I’d gotten things to my satisfaction, it was time for my next project. I’d
+remembered Sae as my last big project before moving/switching off Amaranth, but
+my memory didn’t extend much further than that — except maybe the atrocious
+build times.&lt;/p&gt;
+&lt;p&gt;My next project wants a little CPU core of some kind in it, and I decided to be
+responsible and actually bring Sae back to life with my new sensibilities, instead
+of just starting fresh and having all that work sit there.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="necromancy"&gt;
+&lt;h2 title="Naturally sequent."&gt;Necromancy &lt;a href="#necromancy" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;There was the &lt;code&gt;main&lt;/code&gt; branch, &lt;a href="https://github.com/kivikakk/sae/commit/f67fec675ff137eba41ca636b9f04d981784a7a1"&gt;last modified February 28&lt;/a&gt;, and then 27
+commits of WIP on the &lt;code&gt;rv32c&lt;/code&gt; branch ending in the &lt;code&gt;RESUME XXX GOOD LUCK&lt;/code&gt;
+comment. I took one look at the code in that branch and I realised the comment
+was extremely apposite. I didn’t have a clue what any of the existing magic
+was doing, and I certainly didn’t understand what the final half-commit was
+driving towards either. The tests were extremely broken, and so there was
+nowhere really to get a foothold on it.&lt;/p&gt;
+&lt;p&gt;So it was back to February 28. First I ported it to Niar, which was uneventful,
+and then added a &lt;a href="https://github.com/kivikakk/sae/commit/e48cc2778003023fea6037908e0cc3f9b0eb57fb"&gt;test using CXXRTL&lt;/a&gt; to run the same thing we build for
+the actual FPGA, which is &lt;a href="https://github.com/kivikakk/sae/blob/4faae64a780bf0521fc8aa73bf8cc7b70add193c/rv/shrimprw.c"&gt;this delightful little program&lt;/a&gt;. Synthesis
+still takes 3 minutes, and it turns out all but 10 seconds of this is in
+place-and-route. CXXRTL elaboration and compile is much faster, and running real
+RV code gives me more certainty than the (extensive but still artificial) unit
+tests that I haven’t broken anything.&lt;/p&gt;
+&lt;p&gt;At this stage I could’ve considered getting back onto the WIP, but the core
+gateware design issue was pretty pressing: no matter how good an experience I
+have of specifying an ISA, if I only have 260ish gates free, I’m not doing much
+with it, and the build time sucks even if I can mostly test without it. (I don’t
+want to be &lt;em&gt;discouraged&lt;/em&gt; from putting it on the FPGA!)&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[2024-07-03 13:05:25,148] niar: DEBUG: starting synthesis/pnr
+[2024-07-03 13:05:25,148] niar: INFO: [run]   execute_build
+[2024-07-03 13:08:12,179] niar: DEBUG: synthesis/pnr finished in 0:02:47.031564
+...
+[2024-07-03 13:08:12,208] niar: INFO: Device utilisation:
+[2024-07-03 13:08:12,208] niar: INFO:            ICESTORM_LC:  5033/ 5280    95%
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So instead I spent time fixing this, which meant separating the core out into
+stages, defining an ALU instead of repeating the ops everywhere, putting the
+registers into BRAM (that was 40% of the UP5K’s LCs right there), and generally
+making the thing slower at runtime and tightening up some definitions in
+exchange for 80x faster PNR and using a third of the logic resources. It’s at
+least somewhat amenable to pipelining, which is something I’m going to enjoy
+implementing later.&lt;/p&gt;
+&lt;p&gt;I proceeded methodically and generally did before-and-after builds of every
+change, comparing the bytecount of the generated RTLIL for a rough idea of “how
+much raw IL does the Amaranth input given produce”, synthesis plus PNR time, and
+comparing &lt;code&gt;ICESTORM_LC&lt;/code&gt; counts of the final design (or just cells reported by
+Yosys where PNR was failing because the design got too big).&lt;/p&gt;
+&lt;p&gt;This is extremely fraught and open to misinterpretation, because Yosys’ output
+is optimised, and with many passes involved, there is no direct link between
+a given change and the effect on output size. PNR is similar, especially when
+up against resource limits, and so the whole thing requires investing not too
+much importance in any one result. You’re just kinda vibing it out, making
+hypotheses about what might be cheaper post-opt, and then, usually, trying to
+reason to yourself why it wasn’t cheaper. There’s a lot of holding of judgment
+because maybe you need to change &lt;em&gt;all&lt;/em&gt; the things of class X before you can
+observe the true difference between two methods.&lt;/p&gt;
+&lt;p&gt;The entire log of this process is included in the raw log with the subheading
+&lt;a href="0009-time-travel-raw.html#decombing"&gt;“Decombing”&lt;/a&gt;. At the entry to this stage,
+synthesis took 2:47 and PNR completed with 5033/5280 (95%) of &lt;code&gt;ICESTORM_LC&lt;/code&gt;s
+used. We finished at synthesis taking 0:10 and using 2194/5280 (41%).&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id="chrononautics"&gt;
+&lt;h2&gt;Chrononautics &lt;a href="#chrononautics" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Now we were in a position to start understanding the refactor WIP.&lt;/p&gt;
+&lt;p&gt;Step one was rebasing the old branch onto the new. I’d refactored and moved
+things around a lot (including e.g. using Amaranth’s new async testbench stuff),
+so any commit that touched the existing gateware or testing infrastructure
+conflicted, but these were nice little opportunities to understand what I was
+doing in context. The branch itself had a lot of nice refactors in other areas
+too, so by the time I’d finished rebasing, I felt in a fairly good position,
+except for the fact that neither building it nor running any of the tests worked
+because there was a syntax error in the core ISA definition machinery.&lt;/p&gt;
+&lt;p&gt;The next step was to get it running, because I couldn’t hope to complete
+whatever it was I was doing in March without understanding any of its context,
+namely the entire new ISA kit, and understanding a system is so much easier when
+you can see it running.&lt;/p&gt;
+&lt;p&gt;To start with, I just commented out the broken line, and it ran, with 44/64
+tests passing. Without much in the way of understanding everything around it, I
+was able to identify something one specific case needed to happen right at that
+same spot,  put together an ultra-specific hack in situ, and we got to 54/64.
+At this point, I kind of understand what I was going for, but now I need to
+understand everything else to know how to make it happen.&lt;/p&gt;
+&lt;p&gt;The way to do that turned out to be just reading the new code over and over
+again, eventually defining it from the top down. The entire log of this process
+is included in the raw log under the subheading &lt;a href="0009-time-travel-raw.html#design"&gt;“Design”&lt;/a&gt;, and by the end of
+it, I’d recapitulated every decision made in coming up with it. The next steps
+I’d imagined &lt;a href="https://github.com/kivikakk/sae/commit/456f51b6c0e1aeff93e77b3cf34a5f97f2b2f660"&gt;followed naturally&lt;/a&gt;, and although I entered this stage with no
+intention to continue to use this design (on account of its magic-ness), it
+still made sense to me to finish my last WIP before turning my mind to simpler
+design, since without a fully proven concept I can’t say I’ve grasped it enough
+to actually design it again. This got us to 63/64 tests, with the last one being
+the first (prospective) RVC test.&lt;/p&gt;
+&lt;p&gt;More than proving the concept, though, I just really enjoyed &lt;em&gt;finally&lt;/em&gt;
+completing that change, over 4 months later, in a completely different place and
+time. Continuity in the face of countless discontinuities.&lt;/p&gt;
+&lt;p&gt;Incidentally, this branch doesn’t include much in the way of actual RV32C
+support, since I got completely caught up with designing the new ISA kit with
+just the existing RV32I support as a basis. I think I won’t bother with that,
+though, since it’ll likely entail further support from the ISA kit, and in the
+current design that means even more magic. Time to simplify.&lt;/p&gt;
+&lt;p&gt;&lt;a href="0009-time-travel-raw.html"&gt;Raw notes&lt;/a&gt; follow.&lt;/p&gt;
+&lt;/section&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:lottia.net,2024-05-09:/notes/0007-amaranth-to-chisel.html</id>
     <title type="html">Amaranth to Chisel</title>
     <published>2024-05-09T14:45:00Z</published>
     <updated>2024-06-24T15:00:00Z</updated>
-    <link rel="alternate" href="https://kivikakk.ee/notes/0007-amaranth-to-chisel.html" type="text/html"/>
+    <link rel="alternate" href="https://lottia.net/notes/0007-amaranth-to-chisel.html" type="text/html"/>
     <content type="html">&lt;section id="top"&gt;
 &lt;p&gt;edit: A lot of the following doesn’t apply any more, though it’s all been very
 helpful in learning.&lt;/p&gt;
@@ -104,24 +628,24 @@ a desk, or an external monitor. Or a dev board! &lt;a href="#fnref-minimal" clas
 </content>
   </entry>
   <entry>
-    <id>tag:kivikakk.ee,2024-01-02:/notes/0006-comrak-on-akkoma.html</id>
+    <id>tag:lottia.net,2024-01-02:/notes/0006-comrak-on-akkoma.html</id>
     <title type="html">Comrak on Akkoma</title>
     <published>2024-01-02T04:38:00Z</published>
     <updated>2024-01-02T04:38:00Z</updated>
-    <link rel="alternate" href="https://kivikakk.ee/notes/0006-comrak-on-akkoma.html" type="text/html"/>
+    <link rel="alternate" href="https://lottia.net/notes/0006-comrak-on-akkoma.html" type="text/html"/>
     <content type="html">&lt;section id="top"&gt;
 &lt;p&gt;First up: I’ve never done more than toy with Elixir before, and never with Nix
 or Rust, so this “simply stuff Nix, Elixir and Rust into a magic hat” trick was
 guaranteed to be at least a little bit Fun™. And it was! :)&lt;/p&gt;
 &lt;p&gt;Stock Akkoma uses &lt;a href="https://github.com/pragdave/earmark"&gt;Earmark&lt;/a&gt;, which
 looks like a lovely library, but maybe a lil out of date and out of step with
-CommonMark/GFM. &lt;strong&gt;We deserve &lt;a href="https://hrzn.ee/kivikakk/comrak"&gt;Comrak&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;
+CommonMark/GFM. &lt;strong&gt;We deserve &lt;a href="https://github.com/kivikakk/comrak"&gt;Comrak&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;Happily enough, a Google search revealed a Nathan Faucett had already done
 most of the hard work of using Comrak from Elixir in
 &lt;a href="https://gitlab.com/nathanfaucett/ex-markdown"&gt;&lt;code&gt;ex-markdown&lt;/code&gt;&lt;/a&gt;. Thank you! This never gets old.&lt;/p&gt;
 &lt;p&gt;Ported it for Comrak and &lt;a href="https://github.com/rusterlium/rustler"&gt;Rustler&lt;/a&gt;
 changes in the last 5 years, and then learned about the various ways to
-juggle Elixir and Mix releases/deps in Nix. &lt;a href="https://hrzn.ee/kivikakk/ex-markdown/compare/master...lottia"&gt;Several hundred lines of hack-ish
+juggle Elixir and Mix releases/deps in Nix. &lt;a href="https://github.com/kivikakk/ex-markdown/compare/master...lottia"&gt;Several hundred lines of hack-ish
 later&lt;/a&gt; and
 &lt;code&gt;ex-markdown&lt;/code&gt; was now fit for purpose.&lt;/p&gt;
 &lt;p&gt;Special care was taken to ensure both &lt;code&gt;nix develop&lt;/code&gt;- and &lt;code&gt;nix build&lt;/code&gt;-based
@@ -149,7 +673,7 @@ in the one closure and no overlap.&lt;/p&gt;
 &lt;p&gt;For now we hack it somewhat, and reproduce some of &lt;code&gt;ex-markdown&lt;/code&gt;’s derivation in
 our Akkoma fork — &lt;code&gt;beamPackages&lt;/code&gt; doesn’t have anything like &lt;code&gt;overrideBeamAttrs&lt;/code&gt;
 or &lt;code&gt;overrideMixAttrs&lt;/code&gt; at the moment.
-&lt;a href="https://hrzn.ee/kivikakk/akkoma/compare/v3.10.4...lottia"&gt;There’s a fair bit more Nix&lt;/a&gt;
+&lt;a href="https://github.com/kivikakk/akkoma/compare/v3.10.4...lottia"&gt;There’s a fair bit more Nix&lt;/a&gt;
 involved therein.&lt;/p&gt;
 &lt;p&gt;We started with upstream Nixpkgs’ Akkoma package definition (again, copying the
 original as a base due to lack of override), add our &lt;code&gt;:markdown&lt;/code&gt; package to the
@@ -197,14 +721,14 @@ strong enough signal to finally Just Do It.)&lt;/p&gt;
 </content>
   </entry>
   <entry>
-    <id>tag:kivikakk.ee,2023-09-17:/notes/0005-jambalam.html</id>
+    <id>tag:lottia.net,2023-09-17:/notes/0005-jambalam.html</id>
     <title type="html">Jambalam</title>
     <published>2023-09-17T22:12:00Z</published>
     <updated>2023-09-17T22:12:00Z</updated>
-    <link rel="alternate" href="https://kivikakk.ee/notes/0005-jambalam.html" type="text/html"/>
+    <link rel="alternate" href="https://lottia.net/notes/0005-jambalam.html" type="text/html"/>
     <content type="html">&lt;p&gt;&lt;a href="https://www.youtube.com/watch?v=VeAJ9U5nbVQ"&gt;Have it your way.&lt;/a&gt; (Content note for just about
 everything.)&lt;/p&gt;
-&lt;p&gt;Further to fish fun in &lt;a href="https://kivikakk.ee/notes/0003-nix-revisited.html"&gt;Nix refisited&lt;/a&gt;, today I wanted my &lt;code&gt;git log&lt;/code&gt; to work a little different.&lt;/p&gt;
+&lt;p&gt;Further to fish fun in &lt;a href="0003-nix-revisited.html"&gt;Nix refisited&lt;/a&gt;, today I wanted my &lt;code&gt;git log&lt;/code&gt; to work a little different.&lt;/p&gt;
 &lt;p&gt;I have &lt;code&gt;l&lt;/code&gt; as an alias for: (I’m going to add a bunch of newlines)&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-shell"&gt;git log
   &lt;span class="nt"&gt;--show-notes&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;'*'&lt;/span&gt;
@@ -235,7 +759,7 @@ shows the committer (or &lt;code&gt;Co-authored-by:&lt;/code&gt;), but &lt;em&gt
 &lt;p&gt;&lt;img src="assets/githublog.png" alt=" An excerpt of GitHub’s commit view showing one commit listed as “peff authored and gitster committed”, and another as just “gitster committed” "&gt;&lt;/p&gt;
 &lt;p&gt;Unfortunately(?), &lt;a href="https://git-scm.com/docs/git-log#_pretty_formats"&gt;git-log’s pretty formats&lt;/a&gt; don’t support “show this field only if it’s different
 to that one”. Maybe that’s a good thing. We’re here to break good things.&lt;/p&gt;
-&lt;p&gt;&lt;a href="https://hrzn.ee/kivikakk/git/commit/92a62a03692dd1792d5a1c7c0650d5794d25e16f"&gt;Here’s a patch to &lt;code&gt;git&lt;/code&gt; that adds &lt;code&gt;%cm&lt;/code&gt; and &lt;code&gt;%cf&lt;/code&gt;&lt;/a&gt;. The naming semantics are “cute”:
+&lt;p&gt;&lt;a href="https://github.com/kivikakk/git/commit/92a62a03692dd1792d5a1c7c0650d5794d25e16f"&gt;Here’s a patch to &lt;code&gt;git&lt;/code&gt; that adds &lt;code&gt;%cm&lt;/code&gt; and &lt;code&gt;%cf&lt;/code&gt;&lt;/a&gt;. The naming semantics are “cute”:
 &lt;code&gt;m&lt;/code&gt; and &lt;code&gt;f&lt;/code&gt; are adjacent to &lt;code&gt;n&lt;/code&gt; and &lt;code&gt;e&lt;/code&gt;. The core addition to &lt;code&gt;format_person_part&lt;/code&gt; (grumble) is as
 follows:&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-c"&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;part&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="sc"&gt;'m'&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="n"&gt;part&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="sc"&gt;'f'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;	 &lt;span class="cm"&gt;/* committer name or email if committer != author */&lt;/span&gt;
@@ -265,19 +789,19 @@ repository:&lt;/p&gt;
 </content>
   </entry>
   <entry>
-    <id>tag:kivikakk.ee,2023-08-22:/notes/0004-happy-birthday.html</id>
+    <id>tag:lottia.net,2023-08-22:/notes/0004-happy-birthday.html</id>
     <title type="html">Happy birthday!</title>
     <published>2023-08-22T05:24:00Z</published>
     <updated>2023-08-24T06:13:00Z</updated>
-    <link rel="alternate" href="https://kivikakk.ee/notes/0004-happy-birthday.html" type="text/html"/>
+    <link rel="alternate" href="https://lottia.net/notes/0004-happy-birthday.html" type="text/html"/>
     <content type="html">&lt;section id="opening"&gt;
-&lt;p&gt;I’m writing a little hardware I²C clock stretcher (&lt;a href="https://hrzn.ee/kivikakk/i2c_obs"&gt;I²C, oh! Big stretch&lt;/a&gt;) to
+&lt;p&gt;I’m writing a little hardware I²C clock stretcher (&lt;a href="https://github.com/kivikakk/i2c_obs"&gt;I²C, oh! Big stretch&lt;/a&gt;) to
 help me make my I²C controller implementation actually support it.&lt;/p&gt;
 &lt;p&gt;These are some moments I’ve had while doing so.&lt;/p&gt;
 &lt;/section&gt;
 &lt;section id="oobe"&gt;
 &lt;h2&gt;Out-of-band experience &lt;a href="#oobe" aria-hidden="true" title="Permalink to section" class="anchor"&gt;🔗&lt;/a&gt; &lt;a href="#top" aria-hidden="true" title="Back to top" class="anchor"&gt;↩&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;I added a &lt;a href="https://hrzn.ee/kivikakk/i2c_obs/commit/1078a55c9f5bd63fae9707586393535ed7afcd07#diff-fbbd4dd0ae5cec5958577b18349c32c4e93ed8df0846aacdfe916267b503e6f4"&gt;tiny UART module&lt;/a&gt; to help me debug it. First I emitted a &lt;code&gt;&amp;lt;&lt;/code&gt;
+&lt;p&gt;I added a &lt;a href="https://github.com/kivikakk/i2c_obs/commit/1078a55c9f5bd63fae9707586393535ed7afcd07#diff-fbbd4dd0ae5cec5958577b18349c32c4e93ed8df0846aacdfe916267b503e6f4"&gt;tiny UART module&lt;/a&gt; to help me debug it. First I emitted a &lt;code&gt;&amp;lt;&lt;/code&gt;
 character when starting a big stretch, and a &lt;code&gt;&amp;gt;&lt;/code&gt; character once we’re all
 relaxed.&lt;/p&gt;
 &lt;p&gt;I was going to then write the number of cycles counted during the SCL tLOW
@@ -307,7 +831,7 @@ to itself repeatedly in your head and so &lt;code&gt;0f&lt;/code&gt;, &lt;code&g
 &lt;p&gt;At this point I promptly changed the start/stop characters to &lt;code&gt;ff&lt;/code&gt; and &lt;code&gt;fe&lt;/code&gt;, and
 then — detecting that I was just setting up the next, much larger footgun for
 myself — decided to dump the count one &lt;em&gt;nibble&lt;/em&gt; at a time and thus render any
-byte with a non-zero high nibble officially out-of-band, and &lt;a href="https://hrzn.ee/kivikakk/i2c_obs/commit/da9b89b43319114f3bb0fd43511ae934b10b7fac"&gt;thus&lt;/a&gt;:&lt;/p&gt;
+byte with a non-zero high nibble officially out-of-band, and &lt;a href="https://github.com/kivikakk/i2c_obs/commit/da9b89b43319114f3bb0fd43511ae934b10b7fac"&gt;thus&lt;/a&gt;:&lt;/p&gt;
 &lt;pre&gt;&lt;code class="language-console"&gt;&lt;span class="go"&gt;ff 0c 03 fe&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;/section&gt;
 &lt;section id="measurement"&gt;
@@ -325,7 +849,7 @@ mess)&lt;/p&gt;
 when someone is trying to ground your bus &lt;em&gt;at the same time&lt;/em&gt; as someone trying
 to put high out on it. An I²C bus is designed to be &lt;em&gt;pulled&lt;/em&gt; high so that anyone
 can pull it low, but we’re seeing it &lt;em&gt;driven&lt;/em&gt; high.&lt;/p&gt;
-&lt;p&gt;The controller &lt;a href="https://hrzn.ee/kivikakk/sh1107/commit/bb7388b9f1a3635711337a304bc17e3c682c8508"&gt;needed&lt;/a&gt; to turn SCL’s output-enable off, to let it get pulled up
+&lt;p&gt;The controller &lt;a href="https://github.com/kivikakk/sh1107/commit/bb7388b9f1a3635711337a304bc17e3c682c8508"&gt;needed&lt;/a&gt; to turn SCL’s output-enable off, to let it get pulled up
 high on its own, and then only to switch the output-enable on when it needs to
 be driven low. This lets anyone else on the bus keep SCL low, thus stretching
 the clock.&lt;/p&gt;
@@ -354,21 +878,21 @@ I’m here.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn-fv"&gt;
 &lt;p&gt;Hey, that sounds like something I could really formally verify.
-I have &lt;a href="https://hrzn.ee/kivikakk/sh1107/blob/7b05e685eb6ee53b9f069410c9f12005cd580d99/sh1107/formal/__init__.py#L133-L155"&gt;the start&lt;/a&gt; of a verification setup, might as well use it. &lt;a href="#fnref-fv" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="2" aria-label="Back to reference 2"&gt;↩&lt;/a&gt;&lt;/p&gt;
+I have &lt;a href="https://github.com/kivikakk/sh1107/blob/7b05e685eb6ee53b9f069410c9f12005cd580d99/sh1107/formal/__init__.py#L133-L155"&gt;the start&lt;/a&gt; of a verification setup, might as well use it. &lt;a href="#fnref-fv" class="footnote-backref" data-footnote-backref="" data-footnote-backref-idx="2" aria-label="Back to reference 2"&gt;↩&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
 </content>
   </entry>
   <entry>
-    <id>tag:kivikakk.ee,2023-07-14:/notes/0003-nix-revisited.html</id>
+    <id>tag:lottia.net,2023-07-14:/notes/0003-nix-revisited.html</id>
     <title type="html">Nix revisited</title>
     <published>2023-07-14T16:42:00Z</published>
     <updated>2023-07-14T16:42:00Z</updated>
-    <link rel="alternate" href="https://kivikakk.ee/notes/0003-nix-revisited.html" type="text/html"/>
+    <link rel="alternate" href="https://lottia.net/notes/0003-nix-revisited.html" type="text/html"/>
     <content type="html">&lt;p&gt;I realized I was in error in not using &lt;a href="https://nixos.org/"&gt;Nix&lt;/a&gt;, and have been addressing that.
-(The primary artifact so far that is public is &lt;a href="https://hrzn.ee/kivikakk/hdx"&gt;&lt;code&gt;hdx&lt;/code&gt;&lt;/a&gt;, a response to
-&lt;a href="https://kivikakk.ee/notes/0001-hdl-toolchain-source.html"&gt;Installing an HDL toolchain from source&lt;/a&gt;.)  I have some knowledge of it from
+(The primary artifact so far that is public is &lt;a href="https://github.com/kivikakk/hdx"&gt;&lt;code&gt;hdx&lt;/code&gt;&lt;/a&gt;, a response to
+&lt;a href="0001-hdl-toolchain-source.html"&gt;Installing an HDL toolchain from source&lt;/a&gt;.)  I have some knowledge of it from
 previous experiments.  Some observations:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -461,7 +985,7 @@ this means &lt;code&gt;/nix/var/nix/profiles/per-user/root/channels/nixpkgs/&lt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;Builds may &lt;em&gt;not&lt;/em&gt; generally be reproducible between NixOS and Nix on a
-different platform.  &lt;a href="https://hrzn.ee/kivikakk/hdx/commit/b3af8a0bc323931b4866475d72352ea2f00605c1"&gt;Ahem&lt;/a&gt;.&lt;/p&gt;
+different platform.  &lt;a href="https://github.com/kivikakk/hdx/commit/b3af8a0bc323931b4866475d72352ea2f00605c1"&gt;Ahem&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;I think this implies building &lt;a href="https://github.com/NixOS/nixpkgs/blob/23.05/pkgs/development/embedded/fpga/icestorm/default.nix"&gt;Nixpkgs 23.05’s
 icestorm&lt;/a&gt; on macOS today would fail.&lt;/p&gt;
 &lt;p&gt;Let’s verify.  We want to use &lt;code&gt;nix-build --option substitute false&lt;/code&gt; to
@@ -617,11 +1141,11 @@ language :)&lt;/li&gt;
 </content>
   </entry>
   <entry>
-    <id>tag:kivikakk.ee,2023-06-29:/notes/0002-untangling-cycles.html</id>
+    <id>tag:lottia.net,2023-06-29:/notes/0002-untangling-cycles.html</id>
     <title type="html">Untangling cycles</title>
     <published>2023-06-29T00:51:00Z</published>
     <updated>2023-06-29T00:51:00Z</updated>
-    <link rel="alternate" href="https://kivikakk.ee/notes/0002-untangling-cycles.html" type="text/html"/>
+    <link rel="alternate" href="https://lottia.net/notes/0002-untangling-cycles.html" type="text/html"/>
     <content type="html">&lt;p&gt;This is straight from my journal, so it starts without warning.&lt;/p&gt;
 &lt;hr&gt;
 &lt;p&gt;The bit packing is turning out to be surprisingly tricky!&lt;/p&gt;
@@ -1213,13 +1737,13 @@ dependencies flow right, whereas in the previous table, they do.&lt;/p&gt;
 </content>
   </entry>
   <entry>
-    <id>tag:kivikakk.ee,2023-06-27:/notes/0001-hdl-toolchain-source.html</id>
+    <id>tag:lottia.net,2023-06-27:/notes/0001-hdl-toolchain-source.html</id>
     <title type="html">Installing an HDL toolchain from source</title>
     <published>2023-06-27T09:12:00Z</published>
     <updated>2023-06-27T09:12:00Z</updated>
-    <link rel="alternate" href="https://kivikakk.ee/notes/0001-hdl-toolchain-source.html" type="text/html"/>
+    <link rel="alternate" href="https://lottia.net/notes/0001-hdl-toolchain-source.html" type="text/html"/>
     <content type="html">&lt;section id="opening"&gt;
-&lt;p&gt;It occurred to me while writing up &lt;a href="https://hrzn.ee/kivikakk/sh1107/tree/aeb1c3f77d3226760755331624dd7920779cc2b7#requirements"&gt;§ Requirements&lt;/a&gt; in the README
+&lt;p&gt;It occurred to me while writing up &lt;a href="https://github.com/kivikakk/sh1107/tree/aeb1c3f77d3226760755331624dd7920779cc2b7#requirements"&gt;§ Requirements&lt;/a&gt; in the README
 for some&lt;sup class="footnote-ref"&gt;&lt;a href="#fn-baby" id="fnref-baby" data-footnote-ref=""&gt;1&lt;/a&gt;&lt;/sup&gt; gateware that getting the whole beginner’s open-source FPGA
 toolchain set up can be a serious stumbling block, as I imagine it probably was
 for me once.&lt;/p&gt;
