@@ -10,4 +10,5 @@ rsync -av --exclude .git --delete ./archive/ docs/
 mkdir docs/archive/
 mv docs/index.html docs/archive/
 rsync -av --exclude .git ./jekyll/_site/ docs/
-rsync -av --exclude .git --delete ./notes/ docs/notes/
+
+rsync -av --delete docs/ ~/g/vyxos/sites/kivikakk.ee/
