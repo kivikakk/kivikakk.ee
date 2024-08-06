@@ -1,4 +1,3 @@
-# Setup
 title: kivikakk.ee
 url: https://kivikakk.ee
 paginate: 5
@@ -7,14 +6,12 @@ baseurl: ""
 permalink: pretty
 excerpt_separator: <!--more-->
 
-# Gems
 plugins:
   - jekyll-gist
   - jekyll-paginate
   - jekyll-seo-tag
   - jekyll-sitemap
 
-# Optimize Jekyll
 exclude:
   - .editorconfig
   - .git
@@ -28,18 +25,13 @@ sass:
   sass_dir: _sass
   style: :compressed
 
-# Options
-
-# Specify the author for blog posts
 author:
   name: Asherah Connor
   url: https://kivikakk.ee
   email: ashe@kivikakk.ee
 
-# Custom vars
 version: 3.0.0
 
-# Navbar page list
 nav:
   - title: Home
     url: /
