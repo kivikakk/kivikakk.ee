@@ -15,7 +15,7 @@ a stack machine, and an implementation of such a stack machine. Importantly,
 there'll soon be a second implementation which runs on a different architecture
 entirely: namely, it'll be an implementation _of_ this architecture on an FPGA.
 So the machine needs to be reasonably easy to implement in hardware --- if it
-simplifies the core design, I'll happily take tradeoffs that involve making the
+simplifies the gateware design, I'll happily take tradeoffs that involve making the
 compiler more complicated, or the ISA more verbose.
 
 The ISA started out with opcodes like:
@@ -39,7 +39,7 @@ pub const Opcode = enum(u8) {
 For the binary operations, the stack machine would pop off two elements, and then
 look at the types of those elements to determine how to add them. This is easy to
 do in Zig, but this is giving our core a lot of work to do --- especially when we
-consider the rules involved:
+consider how extensive the rules involved are:
 
 ![Screenshot of QuickBASIC 4.5 open to the "Type Conversions" help page.
 It's scrolled some way down and yet the screen is full of text describing how
@@ -112,8 +112,7 @@ of awareness and ability:
   value to the greater precision. In effect the rule is
   INTEGER&nbsp;<&nbsp;LONG&nbsp;<&nbsp;SINGLE&nbsp;<&nbsp;DOUBLE.
   
-  STRING is not compatible with any other type --- there's no `"x" * 3 = "xxx"`
-  here.
+  STRING is not compatible with any other type --- there's no <nobr><code>"x" * 3 = "xxx"</code></nobr> here.
 
 * It needs to be aware of what type a binary operation's result will be in.
 
@@ -215,7 +214,7 @@ We go as follows:
 * For all binary operations, enumerate all permutations of left- and right-hand
   side types.
 
-* For each such triple, try compiling the binary operation with the "one"-value
+* For each such triple, try compiling the binary operation with the "one"-value[^one]
   of each type as its operands. (For integrals, it's literally the number one.)
 
   * If we get a type error from this attempt, skip it --- we don't care that we can't
@@ -233,6 +232,9 @@ We go as follows:
 
 * Assert that the type of the runtime value left on the stack is the same as
   what the compiler expects!
+
+[^one]: I first used each type's zero value, but then we get division by zero errors while trying
+        to execute the code!
 
 I love how much this solution takes care of itself. While it lacks the
 self-descriptive power of a more coupled approach to designing the compiler and
