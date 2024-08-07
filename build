@@ -4,7 +4,7 @@ set -ex
 
 cd "$(dirname "$0")" || exit 1
 
-(cd jekyll && nix develop -L --command bash -c "jekyll build --lsi")
+(cd jekyll && nix develop -L --command bash -c "jekyll build")
 rm -rf docs/
 rsync -av --exclude .git --delete ./archive/ docs/
 mkdir docs/archive/
