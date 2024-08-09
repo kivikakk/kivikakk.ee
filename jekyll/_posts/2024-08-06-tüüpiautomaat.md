@@ -1,6 +1,6 @@
 ---
 layout:      post
-title:       "Tüüpiautomaat"
+title:       "Tüüpiautomaat: automated testing of a compiler and target against each other"
 categories:  ["zig"]
 ---
 
