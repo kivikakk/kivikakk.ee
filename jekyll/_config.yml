@@ -41,3 +41,6 @@ nav:
 
   - title: "Index"
     url: /index/
+
+  - title: "RSS"
+    url: /atom.xml

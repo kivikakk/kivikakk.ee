@@ -9,7 +9,7 @@ title: About
 
 Hiya!
 
-* [Notes on digital design](https://lottia.net/notes/)
+* [Lotte's notes on digital design](https://lottia.net/notes/)
 * [GitHub](https://github.com/kivikakk)
 * [LinkedIn](https://www.linkedin.com/in/kivikakk/)
 * [Instagram](https://www.instagram.com/kivitalya)
