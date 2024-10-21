@@ -2,6 +2,16 @@
 //
 // Styles for managing the structural hierarchy of the site.
 
+.my-id {
+  float: left;
+  margin-right: 1em;
+  padding-top: 3px;
+
+  img {
+    margin-bottom: 0;
+  }
+}
+
 .about-photos {
   text-align: center;
   img {
