@@ -17,4 +17,8 @@ Hiya!
 
 I can be reached at `ashe@` this domain.
 
+See also:
+
+* [Kindness Alliance](https://kindnessalliance.love/)
+
 <div style="clear: both;"></div>
