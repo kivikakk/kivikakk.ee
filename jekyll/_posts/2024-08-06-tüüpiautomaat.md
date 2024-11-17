@@ -252,6 +252,6 @@ so. I bet there'll be more to uncover, too.
 
 Hope this was fun to read!
 
-[ava]: https://sr.ht/~kivikakk/ava
+[ava]: https://github.com/charlottia/ava
 [quickbasic]: https://en.wikipedia.org/wiki/QuickBASIC
 [kyuubey]: https://github.com/kivikakk/kyuubey
