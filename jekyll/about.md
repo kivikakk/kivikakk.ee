@@ -19,6 +19,7 @@ I can be reached at `ashe@` this domain.
 
 See also:
 
+* [kinu.ee](https://kinu.ee/)
 * [Kindness Alliance](https://kindnessalliance.love/)
 
 <div style="clear: both;"></div>
