@@ -7,10 +7,10 @@ title: About
 <img src="/assets/ashe.png" title="Art by skpd__@Twitter">
 </div>
 
-Hiya! I'm Ashe, an Australian–Estonian software developer.  I am autistic,
+Hiya! I'm Talya, an Australian–Estonian software developer.  I am autistic,
 disabled, and proudly trans.
 
-You can reach me at `ashe@` this domain.
+You can reach me at `talya@` this domain.
 
 * [Lotte's notes on digital design](https://lottia.net/notes/)
 * [GitHub](https://github.com/kivikakk)
@@ -19,7 +19,7 @@ You can reach me at `ashe@` this domain.
 * Slightly underdone [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
 
 
-See also my life partner:
+See also my spouse:
 
 * [kinu.ee](https://kinu.ee/)
 * [Kindness Alliance](https://kindnessalliance.love/)
