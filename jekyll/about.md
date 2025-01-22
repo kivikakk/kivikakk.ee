@@ -19,7 +19,7 @@ You can reach me at `talya@` this domain.
 * Slightly underdone [r&eacute;sum&eacute;](https://f.hrzn.ee/kivikakk.pdf)
 
 
-See also my spouse:
+See also my best friends:
 
 * [kinu.ee](https://kinu.ee/)
 * [Kindness Alliance](https://kindnessalliance.love/)
